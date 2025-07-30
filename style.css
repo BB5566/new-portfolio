@@ -26,7 +26,6 @@ body {
     height: 100%;
     font-family: 'Montserrat', sans-serif;
     font-weight: 400;
-    /* --- 修改處：將網站底色改為金色 --- */
     background-color: var(--primary-gold); 
     color: var(--text-charcoal);
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -49,7 +48,7 @@ a:hover {
     opacity: 0.8;
 }
 
-img {
+img, video {
     max-width: 100%;
     height: auto;
     display: block;
@@ -57,12 +56,11 @@ img {
 
 /* --- 3. 主要容器 --- */
 .portfolio-container {
-    /* --- 修改處：容器背景改為米白，與底色做出區別 --- */
     background-color: var(--bg-cream); 
     width: 100%;
     height: 100%;
-    max-width: 1600px; /* 新增最大寬度，在大螢幕上更好看 */
-    margin: 0 auto; /* 使容器在超大螢幕上置中 */
+    max-width: 1600px;
+    margin: 0 auto;
     box-shadow: 0 15px 35px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
@@ -76,10 +74,10 @@ img {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: clamp(2.5rem, 8vw, 5rem) 1rem clamp(1rem, 4vw, 2.5rem); /* 增加頂部 padding */
+    padding: clamp(2.5rem, 8vw, 5rem) 1rem clamp(1rem, 4vw, 2.5rem);
     text-align: center;
     flex-shrink: 0;
-    background-color: var(--primary-gold); /* Hero 區塊維持金色背景 */
+    background-color: var(--primary-gold);
 }
 
 .name-container {
@@ -87,7 +85,7 @@ img {
     justify-content: center;
     align-items: center;
     gap: 1.5rem;
-    cursor: pointer; /* 讓使用者知道眼睛是可以點的 */
+    cursor: pointer;
 }
 
 .name-line {
@@ -111,7 +109,7 @@ img {
     border-radius: 50%;
     object-fit: cover;
     margin: 0.8rem 0;
-    border: 4px solid var(--bg-cream); /* 邊框改為米白以突顯 */
+    border: 4px solid var(--bg-cream);
     box-shadow: 0 6px 18px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1);
 }
 
@@ -175,19 +173,6 @@ img {
     to { transform: translateX(-100%); }
 }
 
-/* --- 7. 副標題樣式 --- */
-.subtitle {
-    font-size: clamp(1.5rem, 4vw, 3rem);
-    font-weight: 900;
-    font-style: italic;
-    color: transparent;
-    -webkit-text-stroke: 2px var(--text-charcoal);
-    text-shadow: 6px 6px 0px rgba(44, 44, 44, 0.15);
-    transition: -webkit-text-stroke-color 0.3s ease;
-    margin-top: 0.3em;
-    margin-bottom: 0.5rem;
-}
-
 /* --- 8. 可收合區塊 (Accordion) 優化 --- */
 .accordion-section {
     padding: 2rem clamp(1rem, 5vw, 4rem);
@@ -211,10 +196,10 @@ img {
     align-items: center;
     padding: 1.5rem 0;
     cursor: pointer;
-    list-style: none; /* 移除預設 marker */
+    list-style: none;
 }
 
-.accordion-header::-webkit-details-marker { display: none; } /* 確保在 Safari 中也隱藏 */
+.accordion-header::-webkit-details-marker { display: none; }
 
 .accordion-header h3 {
     font-size: clamp(1.8rem, 5vw, 3.5rem);
@@ -227,8 +212,8 @@ img {
     color: var(--accent-indigo);
 }
 
-.accordion-header::after { /* 指示器樣式 */
-    content: '\203A'; /* (>) */
+.accordion-header::after {
+    content: '\203A';
     font-weight: 900;
     font-size: 2rem;
     color: var(--text-charcoal);
@@ -296,13 +281,48 @@ img {
     color: var(--accent-indigo);
 }
 
-/* --- 9. 作品集列表 --- */
+/* --- 9. 作品集列表 & 篩選 --- */
+.portfolio-filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 2.5rem;
+}
+
+.filter-btn {
+    background-color: transparent;
+    border: 2px solid var(--text-charcoal);
+    color: var(--text-charcoal);
+    padding: 0.5rem 1.2rem;
+    border-radius: 999px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-base);
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background-color: var(--text-charcoal);
+    color: var(--bg-cream);
+}
+
+body.dark-mode .filter-btn {
+    border-color: var(--text-charcoal);
+    color: var(--text-charcoal);
+}
+body.dark-mode .filter-btn:hover,
+body.dark-mode .filter-btn.active {
+    background-color: var(--text-charcoal);
+    color: var(--bg-cream);
+}
+
 .portfolio-list {
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
     gap: 2rem;
     margin-top: 1rem;
     padding: 2rem;
@@ -311,25 +331,53 @@ img {
 
 .portfolio-capsule {
     display: block;
+    position: relative;
     width: 220px;
-    padding: 0.9rem 1.5rem;
-    background-color: var(--primary-gold);
-    color: var(--text-charcoal);
+    height: 300px;
+    padding: 0;
     border: 2px solid var(--text-charcoal);
     border-radius: 999px;
-    text-align: center;
+    text-align: left;
     text-decoration: none;
-    font-weight: 700;
-    font-size: 1.1rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-subtle);
+    background-color: #000;
+    cursor: pointer;
     transition: var(--transition-base);
-    transform: rotate(0deg);
+    transform: rotate(0deg); /* 恢復直式 */
 }
 
 .portfolio-capsule:hover {
-    background-color: var(--text-charcoal);
-    color: var(--primary-gold);
     transform: scale(1.05) translateY(-5px);
     box-shadow: 0 10px 25px rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.capsule-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.portfolio-capsule:hover .capsule-media {
+    transform: scale(1.1);
+}
+
+.capsule-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 2.5rem 1.5rem 2rem; /* 增加 padding 以適應膠囊形狀 */
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+    color: var(--pure-white);
+    transition: opacity 0.3s ease;
+}
+
+.capsule-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
 }
 
 /* --- 10. Modal 彈窗樣式 --- */
@@ -363,6 +411,8 @@ img {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     color: var(--text-charcoal);
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .close-button {
@@ -399,24 +449,23 @@ img {
 
 /* --- 11. 暗黑模式主題 --- */
 body.dark-mode {
-    --primary-gold: #f8cb74; /* 暗黑模式下，金色改為主要背景 */
-    --bg-cream: #1e1e1e; /* 米白改為深色 */
-    --text-charcoal: #fdfaf2; /* 文字改為亮色 */
+    --primary-gold: #f8cb74;
+    --bg-cream: #1e1e1e;
+    --text-charcoal: #fdfaf2;
     --accent-indigo: #7b78e0;
 }
 
 body.dark-mode .portfolio-container {
-    background-color: var(--bg-cream); /* 暗黑模式下，容器改為深色 */
+    background-color: var(--bg-cream);
 }
 
 body.dark-mode .hero-content {
-    background-color: #2c2c2c; /* Hero 區塊使用更深的顏色 */
+    background-color: #2c2c2c;
 }
 
 body.dark-mode .profile-photo {
     border-color: #2c2c2c;
 }
-
 
 body.dark-mode .cta-button {
     background-color: var(--text-charcoal);
@@ -432,62 +481,42 @@ body.dark-mode .cta-button:hover {
     .hero-content {
         padding: clamp(1.5rem, 6vw, 3rem) 1rem;
     }
-
     .name-line {
         font-size: clamp(1.5rem, 6vw, 3rem);
     }
-
-    .subtitle {
-        font-size: clamp(1.8rem, 4.5vw, 3.5rem);
-    }
-
     .accordion-header h3 {
         font-size: clamp(1.5rem, 4.5vw, 3rem);
     }
-
     .accordion-header::after {
         font-size: 1.2rem;
         width: 35px;
         height: 35px;
     }
-
-    .portfolio-list {
-        flex-direction: column;
-        padding: 1.5rem 0;
-        min-height: auto;
-    }
-
-    .portfolio-capsule {
-        transform: none;
-        width: 90%;
-        max-width: 350px;
-        font-size: 1rem;
-        padding: 0.8rem 1.2rem;
-    }
-
-    .portfolio-capsule:hover {
-        transform: scale(1.03) translateY(-3px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    }
-
     .modal-content {
         width: 90%;
         padding: 1.5rem;
     }
-
     .eye-container {
         width: 2em;
         height: 2em;
     }
-}
 
-@media (min-width: 769px) {
-    .portfolio-list.horizontal-capsules .portfolio-capsule {
-        transform: rotate(90deg);
+    /* --- 手機版 RWD 樣式 --- */
+    .portfolio-list {
+        display: grid;
+        grid-template-columns: 1fr; /* 手機版改為單欄 */
+        gap: 1.5rem;
+        padding: 1rem 0;
     }
 
-    .portfolio-list.horizontal-capsules .portfolio-capsule:hover {
-        transform: rotate(90deg) scale(1.05) translateY(-5px);
+    .portfolio-capsule {
+        width: 100%; /* 寬度滿版 */
+        height: 200px;
+        border-radius: var(--border-radius-base); /* 圓角矩形 */
+    }
+
+    .capsule-overlay {
+        padding: 1.5rem 1rem 1rem; /* 恢復正常 padding */
     }
 }
 
@@ -506,4 +535,80 @@ body.dark-mode .cta-button:hover {
 .main-footer p {
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
+}
+
+/* --- 10.1 Modal 內容美化 --- */
+.modal-category {
+    display: inline-block;
+    background-color: var(--accent-indigo);
+    color: var(--pure-white);
+    padding: 0.2rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.modal-content h2 {
+    margin-bottom: 0.5rem;
+}
+
+.modal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-tag {
+    background-color: #eee;
+    color: #555;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.modal-cover-image {
+    width: 100%;
+    border-radius: var(--border-radius-base);
+    margin-bottom: 1.5rem;
+}
+
+.modal-description {
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.modal-gallery {
+    margin-top: 2rem;
+    border-top: 1px solid #eee;
+    padding-top: 2rem;
+}
+
+.gallery-item {
+    margin-bottom: 1.5rem;
+}
+
+.gallery-item img {
+    width: 100%;
+    border-radius: var(--border-radius-base);
+    margin-bottom: 0.5rem;
+}
+
+.gallery-item .caption {
+    font-size: 0.9rem;
+    color: #666;
+    text-align: center;
+}
+
+body.dark-mode .modal-tag {
+    background-color: #333;
+    color: #ccc;
+}
+body.dark-mode .modal-gallery {
+    border-top-color: #333;
+}
+body.dark-mode .gallery-item .caption {
+    color: #aaa;
 }

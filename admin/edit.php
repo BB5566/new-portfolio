@@ -5,14 +5,14 @@ include '../api/db_connect.php';
 
 $project = [
     'id' => '', 'category_id' => '', 'title' => '', 'description' => '',
-    'cover_image_url' => '', 'project_link' => '', 'sort_order' => 0, 'is_published' => 1
+    'cover_image_url' => '', 'preview_media_url' => '', 'project_link' => '', 
+    'sort_order' => 0, 'is_published' => 1
 ];
 $page_title = "新增專案";
 $action = "create";
 $project_tags = [];
 $gallery_images = [];
 
-// 獲取所有分類和標籤
 $categories = $pdo->query("SELECT * FROM categories ORDER BY id ASC")->fetchAll();
 $tags = $pdo->query("SELECT * FROM tags ORDER BY category, name ASC")->fetchAll();
 
@@ -32,9 +32,11 @@ if (isset($_GET['id'])) {
         $stmt_gallery->execute([$id]);
         $gallery_images = $stmt_gallery->fetchAll();
     } else {
+        // Reset if ID not found
         $project = [
             'id' => '', 'category_id' => '', 'title' => '', 'description' => '',
-            'cover_image_url' => '', 'project_link' => '', 'sort_order' => 0, 'is_published' => 1
+            'cover_image_url' => '', 'preview_media_url' => '', 'project_link' => '', 
+            'sort_order' => 0, 'is_published' => 1
         ];
     }
 }
@@ -48,6 +50,10 @@ include 'templates/header.php';
 
     <!-- Project Details -->
     <div class="form-group">
+        <label for="title">標題</label>
+        <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($project['title']); ?>" required>
+    </div>
+    <div class="form-group">
         <label for="category_id">分類</label>
         <select id="category_id" name="category_id" required>
             <option value="">請選擇分類</option>
@@ -59,21 +65,34 @@ include 'templates/header.php';
         </select>
     </div>
     <div class="form-group">
-        <label for="title">標題</label>
-        <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($project['title']); ?>" required>
-    </div>
-    <div class="form-group">
         <label for="description">描述</label>
         <textarea id="description" name="description" rows="10" required><?php echo htmlspecialchars($project['description']); ?></textarea>
     </div>
     <div class="form-group">
-        <label for="cover_image">封面圖片</label>
+        <label for="cover_image">封面圖片 (用於彈出視窗)</label>
         <?php if (!empty($project['cover_image_url'])): ?>
             <img src="../<?php echo htmlspecialchars($project['cover_image_url']); ?>" alt="Current Cover" class="preview-image">
         <?php endif; ?>
         <input type="file" id="cover_image" name="cover_image" <?php echo empty($project['id']) ? 'required' : ''; ?>>
         <input type="hidden" name="old_cover_image" value="<?php echo htmlspecialchars($project['cover_image_url']); ?>">
     </div>
+
+    <!-- NEW: Preview Media Upload -->
+    <div class="form-group">
+        <label for="preview_media">預覽媒體 (用於作品集列表的 GIF 或 MP4)</label>
+        <?php if (!empty($project['preview_media_url'])): ?>
+            <div class="preview-media-container">
+                <?php if (str_ends_with($project['preview_media_url'], '.mp4') || str_ends_with($project['preview_media_url'], '.webm')): ?>
+                    <video src="../<?php echo htmlspecialchars($project['preview_media_url']); ?>" autoplay loop muted class="preview-image"></video>
+                <?php else: ?>
+                    <img src="../<?php echo htmlspecialchars($project['preview_media_url']); ?>" alt="Current Preview" class="preview-image">
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+        <input type="file" id="preview_media" name="preview_media">
+        <input type="hidden" name="old_preview_media" value="<?php echo htmlspecialchars($project['preview_media_url']); ?>">
+    </div>
+
     <div class="form-group">
         <label>技能標籤</label>
         <div class="tags-container">

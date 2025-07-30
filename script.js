@@ -1,13 +1,17 @@
-// FILE: script.js (最終版)
+// FILE: script.js
+// --- FINAL VERSION: 支援影片預覽與分類篩選 ---
 document.addEventListener('DOMContentLoaded', () => {
-    // ---- DOM 元素選取 (集中管理) ----
+    // ---- DOM 元素選取 ----
     const body = document.querySelector('body');
     const nameContainer = document.querySelector('.name-container');
     const projectModal = document.getElementById('project-modal');
     const modalBody = document.getElementById('modal-body');
     const closeButton = document.querySelector('.close-button');
     const portfolioList = document.querySelector('.portfolio-list');
+    const filterContainer = document.getElementById('portfolio-filters');
     const eyes = document.querySelectorAll('.eye');
+
+    let allProjectsData = []; // 用來儲存從 API 獲取的原始專案資料
 
     // ---- 通用工具函式 ----
     function throttle(func, limit) {
@@ -24,28 +28,98 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---- 功能函式 ----
-    async function loadProjects() {
+    function renderProjects(projectsToRender) {
+        if (!portfolioList) return;
+        portfolioList.innerHTML = '';
+        if (projectsToRender.length === 0) {
+            portfolioList.innerHTML = '<p>沒有符合篩選條件的專案。</p>';
+            return;
+        }
+
+        projectsToRender.forEach(project => {
+            const capsule = document.createElement('div');
+            capsule.className = 'portfolio-capsule';
+            capsule.dataset.projectId = project.id;
+            // 將分類存入 data attribute，方便篩選時讀取
+            capsule.dataset.category = project.category_name; 
+
+            let mediaElement;
+            const mediaUrl = project.preview_media_url;
+
+            if (mediaUrl && (mediaUrl.endsWith('.mp4') || mediaUrl.endsWith('.webm'))) {
+                mediaElement = document.createElement('video');
+                mediaElement.src = mediaUrl;
+                mediaElement.autoplay = true;
+                mediaElement.loop = true;
+                mediaElement.muted = true;
+                mediaElement.playsInline = true;
+            } else {
+                mediaElement = document.createElement('img');
+                mediaElement.src = mediaUrl || 'https://placehold.co/400x300/cccccc/969696?text=No+Preview';
+                mediaElement.alt = project.title + " preview";
+            }
+            mediaElement.className = 'capsule-media';
+
+            const overlay = document.createElement('div');
+            overlay.className = 'capsule-overlay';
+            
+            const title = document.createElement('h4');
+            title.className = 'capsule-title';
+            title.textContent = project.title;
+
+            overlay.appendChild(title);
+            capsule.appendChild(mediaElement);
+            capsule.appendChild(overlay);
+            portfolioList.appendChild(capsule);
+        });
+    }
+
+    function setupFilters(projects) {
+        if (!filterContainer) return;
+        
+        // *** UPDATED: 收集所有不重複的「分類」 ***
+        const allCategories = new Set();
+        projects.forEach(p => allCategories.add(p.category_name));
+
+        // 產生按鈕 HTML
+        let buttonsHtml = '<button class="filter-btn active" data-category="all">全部</button>';
+        allCategories.forEach(category => {
+            buttonsHtml += `<button class="filter-btn" data-category="${category}">${category}</button>`;
+        });
+        filterContainer.innerHTML = buttonsHtml;
+
+        // 為按鈕容器加上事件監聽 (事件委派)
+        filterContainer.addEventListener('click', (event) => {
+            if (event.target.tagName === 'BUTTON') {
+                const selectedCategory = event.target.dataset.category;
+
+                // 更新按鈕的 active 狀態
+                filterContainer.querySelector('.active').classList.remove('active');
+                event.target.classList.add('active');
+
+                // *** UPDATED: 根據「分類」篩選並重新渲染專案 ***
+                if (selectedCategory === 'all') {
+                    renderProjects(allProjectsData);
+                } else {
+                    const filteredProjects = allProjectsData.filter(p => p.category_name === selectedCategory);
+                    renderProjects(filteredProjects);
+                }
+            }
+        });
+    }
+
+    async function loadProjectsAndSetupFilters() {
         const API_URL = 'api/get_projects.php'; 
         try {
             const response = await fetch(API_URL);
             if (!response.ok) {
                 throw new Error(`Network response was not ok, status: ${response.status}`);
             }
-            const projects = await response.json();
-            if (!portfolioList) return;
-            portfolioList.innerHTML = '';
-            if (projects.length === 0) {
-                 portfolioList.innerHTML = '<p>目前尚無已發布的專案。</p>';
-                 return;
-            }
-            projects.forEach(project => {
-                const projectLink = document.createElement('a');
-                projectLink.href = '#';
-                projectLink.className = 'portfolio-capsule';
-                projectLink.textContent = project.title;
-                projectLink.dataset.projectId = project.id;
-                portfolioList.appendChild(projectLink);
-            });
+            allProjectsData = await response.json(); // 儲存原始資料
+            
+            renderProjects(allProjectsData); // 首次渲染全部專案
+            setupFilters(allProjectsData);   // 根據資料建立篩選按鈕
+
         } catch (error) {
             console.error('專案載入失敗:', error);
             if (portfolioList) {
@@ -109,10 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         projectModal?.classList.remove('show');
     }
 
-    const toggleHorizontalCapsules = () => {
-        portfolioList?.classList.toggle('horizontal-capsules', window.innerWidth >= 769);
-    };
-
     // ---- 事件監聽器設定 ----
     nameContainer?.addEventListener('click', () => {
         body.classList.toggle('dark-mode');
@@ -152,6 +222,5 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mousemove', throttle(handleMouseMove, 100));
     
     // ---- 初始化執行 ----
-    toggleHorizontalCapsules();
-    loadProjects();
+    loadProjectsAndSetupFilters();
 });

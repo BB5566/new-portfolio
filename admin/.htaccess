@@ -1,0 +1,8 @@
+# 啟用基本身份驗證
+AuthType Basic
+# 驗證時顯示的提示訊息
+AuthName "Restricted Area"
+# 指定密碼檔的位置
+AuthUserFile /Users/bb/Workplace/portofilo/admin/.htpasswd
+# 指定哪些使用者可以存取
+Require valid-user
