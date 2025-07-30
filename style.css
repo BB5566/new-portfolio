@@ -88,19 +88,27 @@ img, video {
     cursor: pointer;
 }
 
+/* **** REMOVED: 移除整個容器的 hover 效果 **** */
+
 .name-line {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.15em;
-    font-size: clamp(2.2rem, 8vw, 4.5rem);
+    font-size: clamp(2.86rem, 10.4vw, 5.85rem);
     font-weight: 900;
     font-style: italic;
     color: var(--text-charcoal);
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
     margin: 0.1em 0;
     line-height: 1;
+}
+
+/* **** NEW: 讓每個字母/眼睛都可被變形 **** */
+.name-line > span, .eye-container {
+    display: inline-block; /* 確保可以套用 transform */
+    transition: color 0.3s ease; /* 保留顏色變換 */
 }
 
 .profile-photo {
@@ -145,16 +153,19 @@ img, video {
     color: var(--bg-cream);
     font-size: clamp(0.9rem, 3vw, 1.5rem);
     font-weight: 700;
-    border-radius: 999px;
     position: relative;
     z-index: 10;
-    margin: 0.5em auto;
-    padding: 0.27em 0.5em;
-    width: 90%;
-    max-width: 1000px;
+    margin: 1.5rem auto 0.5rem;
     overflow: hidden;
     white-space: nowrap;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border-radius: 50%;
 }
 
 .tagline-capsule p {
@@ -162,6 +173,7 @@ img, video {
     padding-left: 100%;
     animation: marquee-scroll 20s linear infinite;
     font-size: clamp(1.2rem, 3vw, 2rem);
+    opacity: 0;
 }
 
 .tagline-capsule:hover p {
@@ -196,24 +208,22 @@ img, video {
     align-items: center;
     padding: 1.5rem 0;
     cursor: pointer;
-    list-style: none;
+    position: relative;
 }
-
-.accordion-header::-webkit-details-marker { display: none; }
 
 .accordion-header h3 {
     font-size: clamp(1.8rem, 5vw, 3.5rem);
     font-style: italic;
     transition: color 0.3s ease;
     margin: 0;
+    opacity: 1;
 }
 
 .accordion-header:hover h3 {
     color: var(--accent-indigo);
 }
 
-.accordion-header::after {
-    content: '\203A';
+.accordion-icon {
     font-weight: 900;
     font-size: 2rem;
     color: var(--text-charcoal);
@@ -229,38 +239,26 @@ img, video {
     transform: rotate(0deg);
 }
 
-.accordion-header:hover::after {
-    transform: scale(1.1);
-}
-
-.accordion-item[open] > .accordion-header::after {
+.accordion-item.is-open > .accordion-header .accordion-icon {
     transform: rotate(90deg);
     background-color: var(--text-charcoal);
     color: var(--bg-cream);
 }
 
-.accordion-item[open] > .accordion-header:hover::after {
-    transform: rotate(90deg) scale(1.1);
-}
-
 .accordion-content {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.4s ease-out;
-}
-
-.accordion-item[open] > .accordion-content {
-    grid-template-rows: 1fr;
-}
-
-.accordion-content > * {
     overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.5s ease-in-out;
 }
 
-.accordion-content p,
-.accordion-content .timeline,
-.accordion-content .portfolio-list {
+.accordion-item.is-open > .accordion-content {
+    max-height: 2000px;
+}
+
+.accordion-content > .content-wrapper {
+    overflow: visible;
     padding-bottom: 2rem;
+    padding-top: 1rem;
 }
 
 .timeline {
@@ -281,7 +279,7 @@ img, video {
     color: var(--accent-indigo);
 }
 
-/* --- 9. 作品集列表 & 篩選 --- */
+/* --- 9. 作品集列表 & 篩選 (全新輪播樣式) --- */
 .portfolio-filters {
     display: flex;
     flex-wrap: wrap;
@@ -308,25 +306,24 @@ img, video {
     color: var(--bg-cream);
 }
 
-body.dark-mode .filter-btn {
-    border-color: var(--text-charcoal);
-    color: var(--text-charcoal);
+.portfolio-scroller {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 2rem 0;
+    cursor: grab;
 }
-body.dark-mode .filter-btn:hover,
-body.dark-mode .filter-btn.active {
-    background-color: var(--text-charcoal);
-    color: var(--bg-cream);
+.portfolio-scroller:active {
+    cursor: grabbing;
 }
 
 .portfolio-list {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    margin-top: 1rem;
-    padding: 2rem;
-    min-height: 250px;
+    flex-wrap: nowrap;
+    width: max-content;
+    min-height: auto;
+    padding: 0;
+    margin: 0;
 }
 
 .portfolio-capsule {
@@ -344,7 +341,9 @@ body.dark-mode .filter-btn.active {
     background-color: #000;
     cursor: pointer;
     transition: var(--transition-base);
-    transform: rotate(0deg); /* 恢復直式 */
+    transform: rotate(0deg);
+    margin: 0 1rem;
+    flex-shrink: 0;
 }
 
 .portfolio-capsule:hover {
@@ -368,7 +367,7 @@ body.dark-mode .filter-btn.active {
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 2.5rem 1.5rem 2rem; /* 增加 padding 以適應膠囊形狀 */
+    padding: 2.5rem 1.5rem 2rem;
     background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
     color: var(--pure-white);
     transition: opacity 0.3s ease;
@@ -380,9 +379,38 @@ body.dark-mode .filter-btn.active {
     margin: 0;
 }
 
+.scroller-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.nav-btn {
+    background-color: transparent;
+    border: 2px solid var(--text-charcoal);
+    color: var(--text-charcoal);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition-base);
+    display: grid;
+    place-items: center;
+}
+
+.nav-btn:hover {
+    background-color: var(--text-charcoal);
+    color: var(--bg-cream);
+    transform: scale(1.1);
+}
+
 /* --- 10. Modal 彈窗樣式 --- */
 .modal {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
     position: fixed;
     z-index: 1001;
     left: 0;
@@ -391,14 +419,12 @@ body.dark-mode .filter-btn.active {
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.modal.show {
-    display: flex;
-}
-
+/* (以下樣式皆與前一版相同) */
 .modal-content {
     background-color: var(--bg-cream);
     margin: auto;
@@ -414,7 +440,6 @@ body.dark-mode .filter-btn.active {
     max-height: 90vh;
     overflow-y: auto;
 }
-
 .close-button {
     color: var(--text-charcoal);
     position: absolute;
@@ -425,12 +450,10 @@ body.dark-mode .filter-btn.active {
     cursor: pointer;
     transition: var(--transition-base);
 }
-
 .close-button:hover,
 .close-button:focus {
     color: var(--accent-indigo);
 }
-
 .cta-button {
     background-color: var(--text-charcoal);
     color: var(--bg-cream);
@@ -439,14 +462,12 @@ body.dark-mode .filter-btn.active {
     transition: var(--transition-base);
     display: inline-block;
 }
-
 .cta-button:hover {
     background-color: var(--accent-indigo);
     color: var(--pure-white);
     transform: translateY(-2px);
     opacity: 1;
 }
-
 /* --- 11. 暗黑模式主題 --- */
 body.dark-mode {
     --primary-gold: #f8cb74;
@@ -454,72 +475,30 @@ body.dark-mode {
     --text-charcoal: #fdfaf2;
     --accent-indigo: #7b78e0;
 }
-
-body.dark-mode .portfolio-container {
-    background-color: var(--bg-cream);
-}
-
-body.dark-mode .hero-content {
-    background-color: #2c2c2c;
-}
-
-body.dark-mode .profile-photo {
-    border-color: #2c2c2c;
-}
-
-body.dark-mode .cta-button {
-    background-color: var(--text-charcoal);
-    color: var(--bg-cream);
-}
-body.dark-mode .cta-button:hover {
-    background-color: var(--accent-indigo);
-    color: var(--pure-white);
-}
-
+body.dark-mode .portfolio-container { background-color: var(--bg-cream); }
+body.dark-mode .hero-content { background-color: #2c2c2c; }
+body.dark-mode .profile-photo { border-color: #2c2c2c; }
+body.dark-mode .filter-btn { border-color: var(--text-charcoal); color: var(--text-charcoal); }
+body.dark-mode .filter-btn:hover,
+body.dark-mode .filter-btn.active { background-color: var(--text-charcoal); color: var(--bg-cream); }
+body.dark-mode .nav-btn { border-color: var(--text-charcoal); color: var(--text-charcoal); }
+body.dark-mode .nav-btn:hover { background-color: var(--text-charcoal); color: var(--bg-cream); }
+body.dark-mode .cta-button { background-color: var(--text-charcoal); color: var(--bg-cream); }
+body.dark-mode .cta-button:hover { background-color: var(--accent-indigo); color: var(--pure-white); }
+body.dark-mode .accordion-item { border-color: var(--text-charcoal); }
+body.dark-mode .accordion-item.is-open > .accordion-header .accordion-icon { background-color: var(--text-charcoal); color: var(--bg-cream); }
+body.dark-mode .accordion-icon { border-color: var(--text-charcoal); color: var(--text-charcoal); }
 /* --- 12. 響應式設計 --- */
 @media (max-width: 768px) {
-    .hero-content {
-        padding: clamp(1.5rem, 6vw, 3rem) 1rem;
-    }
-    .name-line {
-        font-size: clamp(1.5rem, 6vw, 3rem);
-    }
-    .accordion-header h3 {
-        font-size: clamp(1.5rem, 4.5vw, 3rem);
-    }
-    .accordion-header::after {
-        font-size: 1.2rem;
-        width: 35px;
-        height: 35px;
-    }
-    .modal-content {
-        width: 90%;
-        padding: 1.5rem;
-    }
-    .eye-container {
-        width: 2em;
-        height: 2em;
-    }
-
-    /* --- 手機版 RWD 樣式 --- */
-    .portfolio-list {
-        display: grid;
-        grid-template-columns: 1fr; /* 手機版改為單欄 */
-        gap: 1.5rem;
-        padding: 1rem 0;
-    }
-
-    .portfolio-capsule {
-        width: 100%; /* 寬度滿版 */
-        height: 200px;
-        border-radius: var(--border-radius-base); /* 圓角矩形 */
-    }
-
-    .capsule-overlay {
-        padding: 1.5rem 1rem 1rem; /* 恢復正常 padding */
-    }
+    .hero-content { padding: clamp(1.5rem, 6vw, 3rem) 1rem; }
+    .name-line { font-size: clamp(2rem, 10vw, 4rem); }
+    .accordion-header h3 { font-size: clamp(1.5rem, 4.5vw, 3rem); }
+    .accordion-icon { font-size: 1.2rem; width: 35px; height: 35px; }
+    .modal-content { width: 90%; padding: 1.5rem; }
+    .eye-container { width: 2em; height: 2em; }
+    .scroller-nav { display: none; }
+    .portfolio-capsule { width: 200px; height: 270px; }
 }
-
 /* --- 13. 頁腳 (Footer) --- */
 .main-footer {
     background-color: var(--bg-cream);
@@ -531,12 +510,6 @@ body.dark-mode .cta-button:hover {
     flex-shrink: 0;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
-
-.main-footer p {
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-}
-
 /* --- 10.1 Modal 內容美化 --- */
 .modal-category {
     display: inline-block;
@@ -548,67 +521,15 @@ body.dark-mode .cta-button:hover {
     font-weight: 700;
     margin-bottom: 0.5rem;
 }
-
-.modal-content h2 {
-    margin-bottom: 0.5rem;
-}
-
-.modal-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.modal-tag {
-    background-color: #eee;
-    color: #555;
-    padding: 0.3rem 0.8rem;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.modal-cover-image {
-    width: 100%;
-    border-radius: var(--border-radius-base);
-    margin-bottom: 1.5rem;
-}
-
-.modal-description {
-    line-height: 1.7;
-    margin-bottom: 2rem;
-}
-
-.modal-gallery {
-    margin-top: 2rem;
-    border-top: 1px solid #eee;
-    padding-top: 2rem;
-}
-
-.gallery-item {
-    margin-bottom: 1.5rem;
-}
-
-.gallery-item img {
-    width: 100%;
-    border-radius: var(--border-radius-base);
-    margin-bottom: 0.5rem;
-}
-
-.gallery-item .caption {
-    font-size: 0.9rem;
-    color: #666;
-    text-align: center;
-}
-
-body.dark-mode .modal-tag {
-    background-color: #333;
-    color: #ccc;
-}
-body.dark-mode .modal-gallery {
-    border-top-color: #333;
-}
-body.dark-mode .gallery-item .caption {
-    color: #aaa;
-}
+.modal-content h2 { margin-bottom: 0.5rem; }
+.modal-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.modal-tag { background-color: #eee; color: #555; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500; }
+.modal-cover-image { width: 100%; border-radius: var(--border-radius-base); margin-bottom: 1.5rem; }
+.modal-description { line-height: 1.7; margin-bottom: 2rem; }
+.modal-gallery { margin-top: 2rem; border-top: 1px solid #eee; padding-top: 2rem; }
+.gallery-item { margin-bottom: 1.5rem; }
+.gallery-item img { width: 100%; border-radius: var(--border-radius-base); margin-bottom: 0.5rem; }
+.gallery-item .caption { font-size: 0.9rem; color: #666; text-align: center; }
+body.dark-mode .modal-tag { background-color: #333; color: #ccc; }
+body.dark-mode .modal-gallery { border-top-color: #333; }
+body.dark-mode .gallery-item .caption { color: #aaa; }
