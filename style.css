@@ -29,13 +29,23 @@ body {
     background-color: var(--primary-gold); 
     color: var(--text-charcoal);
     transition: background-color 0.3s ease, color 0.3s ease;
+    overflow: hidden; /* 載入時防止滾動 */
 }
+
+body.loaded {
+    overflow: auto; /* 載入後恢復滾動 */
+}
+
 
 body {
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1.6;
+}
+
+a, button, .accordion-header, .portfolio-capsule, .name-container, .eye-container {
+    cursor: pointer;
 }
 
 a {
@@ -54,6 +64,110 @@ img, video {
     display: block;
 }
 
+kbd {
+    background-color: #eee;
+    border-radius: 3px;
+    border: 1px solid #b4b4b4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 2px 0 0 rgba(255, 255, 255, .7) inset;
+    color: #333;
+    display: inline-block;
+    font-family: monospace;
+    font-size: .85em;
+    font-weight: 700;
+    line-height: 1;
+    padding: 2px 4px;
+    white-space: nowrap;
+}
+
+/* --- 載入畫面樣式 --- */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#pixel-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    z-index: 1;
+}
+.pixel-block {
+    width: 100%;
+    height: 100%;
+    background-color: var(--text-charcoal);
+}
+
+
+.loading-text-container {
+    color: var(--primary-gold);
+    position: relative;
+    z-index: 2;
+}
+.loading-title {
+    font-size: clamp(2rem, 8vw, 4rem);
+    font-weight: 900;
+    font-style: italic;
+    text-shadow: 2px 2px 0px var(--accent-indigo);
+}
+.loading-subtitle {
+    font-size: clamp(1rem, 4vw, 2rem);
+    letter-spacing: 0.2em;
+    margin-bottom: 3rem;
+    color: var(--bg-cream);
+}
+.press-start {
+    font-size: clamp(1.2rem, 5vw, 2.5rem);
+    font-weight: 700;
+    animation: blink 1.5s step-end infinite;
+}
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* --- 音效開關樣式 --- */
+#audio-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1002;
+    background-color: var(--bg-cream);
+    color: var(--text-charcoal);
+    border: 2px solid var(--text-charcoal);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.4s ease;
+}
+#audio-toggle-btn.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+body.dark-mode #audio-toggle-btn {
+    background-color: var(--text-charcoal);
+    color: var(--bg-cream);
+    border-color: var(--bg-cream);
+}
+
+
 /* --- 3. 主要容器 --- */
 .portfolio-container {
     background-color: var(--bg-cream); 
@@ -66,6 +180,8 @@ img, video {
     flex-direction: column;
     overflow-y: auto;
     transition: background-color 0.3s ease;
+    visibility: hidden;
+    opacity: 0;
 }
 
 /* --- 4. Hero Content & 字體優化 --- */
@@ -74,11 +190,34 @@ img, video {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* padding: clamp(2.5rem, 8vw, 5rem) 1rem clamp(1rem, 4vw, 2.5rem); */
     padding: clamp(6.5rem, 9vw, 14rem) 1rem clamp(6rem, 5vw, 2.5rem);
     text-align: center;
     flex-shrink: 0;
     background-color: var(--primary-gold);
+    position: relative;
+    overflow: hidden;
+    perspective: 1000px;
+}
+
+.hero-content::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px
+    );
+    background-size: 100% 3px;
+    opacity: 0.5;
+    animation: scanline 20s linear infinite;
+    pointer-events: none;
+}
+@keyframes scanline {
+    from { background-position-y: 0; }
+    to { background-position-y: 100px; }
 }
 
 .name-container {
@@ -86,10 +225,9 @@ img, video {
     justify-content: center;
     align-items: center;
     gap: 1.5rem;
-    cursor: pointer;
+    transition: transform 0.4s ease-out;
+    transform-style: preserve-3d;
 }
-
-/* **** REMOVED: 移除整個容器的 hover 效果 **** */
 
 .name-line {
     display: flex;
@@ -106,11 +244,78 @@ img, video {
     line-height: 1;
 }
 
-/* **** NEW: 讓每個字母/眼睛都可被變形 **** */
-.name-line > span, .eye-container {
-    display: inline-block; /* 確保可以套用 transform */
-    transition: color 0.3s ease; /* 保留顏色變換 */
+.name-container:hover .name-line {
+    color: var(--accent-indigo);
 }
+
+.name-line > span, .eye-container {
+    display: inline-block;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.name-line > span.glitch:before,
+.name-line > span.glitch:after,
+.accordion-header h3.glitch:before,
+.accordion-header h3.glitch:after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* 核心修正：讓 BOB TSOU 的雜訊背景色符合其所在的 Hero 區塊的金色背景 */
+.name-line > span.glitch:before,
+.name-line > span.glitch:after {
+    background: var(--primary-gold); 
+}
+
+.accordion-header h3.glitch:before,
+.accordion-header h3.glitch:after {
+    background: var(--bg-cream);
+}
+
+
+.name-line > span.glitch:before,
+.accordion-header h3.glitch:before {
+    left: 2px;
+    text-shadow: -1px 0 red;
+    animation: glitch-anim-1 2s linear infinite reverse;
+}
+.name-line > span.glitch:after,
+.accordion-header h3.glitch:after {
+    left: -2px;
+    text-shadow: -1px 0 blue;
+    animation: glitch-anim-2 2s linear infinite reverse;
+}
+@keyframes glitch-anim-1 {
+    0%, 10%, 100% { clip-path: inset(50% 50% 50% 50%); }
+    20% { clip-path: inset(80% 0 15% 0); }
+    40% { clip-path: inset(10% 0 85% 0); }
+    60% { clip-path: inset(40% 0 45% 0); }
+    80% { clip-path: inset(90% 0 5% 0); }
+}
+@keyframes glitch-anim-2 {
+    0%, 10%, 100% { clip-path: inset(50% 50% 50% 50%); }
+    15% { clip-path: inset(0 0 90% 0); }
+    35% { clip-path: inset(95% 0 0 0); }
+    55% { clip-path: inset(30% 0 60% 0); }
+    75% { clip-path: inset(5% 0 80% 0); }
+}
+
+.eye-container.is-glitching {
+    animation: glitch-shake 0.3s ease-in-out infinite;
+}
+@keyframes glitch-shake {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-2px, 2px); }
+    50% { transform: translate(2px, -2px); }
+    75% { transform: translate(1px, 1px); }
+}
+
 
 .profile-photo {
     width: clamp(100px, 20vw, 150px);
@@ -122,7 +327,6 @@ img, video {
     box-shadow: 0 6px 18px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* --- Eye Styles --- */
 .eye-container {
     width: 0.8em;
     height: 0.8em;
@@ -147,8 +351,6 @@ img, video {
     transition: transform 0.1s ease-out, background-color 0.3s ease;
 }
 
-
-/* --- 6. 中間膠囊與跑馬燈 --- */
 .tagline-capsule {
     background-color: var(--text-charcoal);
     color: var(--bg-cream);
@@ -162,7 +364,6 @@ img, video {
     display: flex;
     justify-content: center;
     align-items: center;
-    
     width: 50px;
     height: 50px;
     padding: 0;
@@ -177,16 +378,11 @@ img, video {
     opacity: 0;
 }
 
-.tagline-capsule:hover p {
-    animation-play-state: paused;
-}
-
 @keyframes marquee-scroll {
     from { transform: translateX(0); }
     to { transform: translateX(-100%); }
 }
 
-/* --- 8. 可收合區塊 (Accordion) 優化 --- */
 .accordion-section {
     padding: 2rem clamp(1rem, 5vw, 4rem);
     background-color: var(--bg-cream);
@@ -208,7 +404,6 @@ img, video {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 0;
-    cursor: pointer;
     position: relative;
 }
 
@@ -218,6 +413,7 @@ img, video {
     transition: color 0.3s ease;
     margin: 0;
     opacity: 1;
+    position: relative;
 }
 
 .accordion-header:hover h3 {
@@ -280,7 +476,6 @@ img, video {
     color: var(--accent-indigo);
 }
 
-/* --- 9. 作品集列表 & 篩選 (全新輪播樣式) --- */
 .portfolio-filters {
     display: flex;
     flex-wrap: wrap;
@@ -297,7 +492,6 @@ img, video {
     border-radius: 999px;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    cursor: pointer;
     transition: var(--transition-base);
 }
 
@@ -312,10 +506,6 @@ img, video {
     width: 100%;
     overflow: hidden;
     padding: 2rem 0;
-    cursor: grab;
-}
-.portfolio-scroller:active {
-    cursor: grabbing;
 }
 
 .portfolio-list {
@@ -325,6 +515,7 @@ img, video {
     min-height: auto;
     padding: 0;
     margin: 0;
+    transition: opacity 0.4s ease;
 }
 
 .portfolio-capsule {
@@ -340,16 +531,17 @@ img, video {
     overflow: hidden;
     box-shadow: var(--shadow-subtle);
     background-color: #000;
-    cursor: pointer;
     transition: var(--transition-base);
     transform: rotate(0deg);
     margin: 0 1rem;
     flex-shrink: 0;
 }
 
-.portfolio-capsule:hover {
-    transform: scale(1.05) translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.15);
+.portfolio-capsule:hover, .portfolio-capsule.keyboard-focus {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.18), 0 8px 10px rgba(0,0,0,0.15);
+    border-color: var(--accent-indigo);
+    z-index: 10;
 }
 
 .capsule-media {
@@ -359,7 +551,7 @@ img, video {
     transition: transform 0.5s ease;
 }
 
-.portfolio-capsule:hover .capsule-media {
+.portfolio-capsule:hover .capsule-media, .portfolio-capsule.keyboard-focus .capsule-media {
     transform: scale(1.1);
 }
 
@@ -396,8 +588,7 @@ img, video {
     border-radius: 50%;
     font-size: 1.5rem;
     font-weight: bold;
-    cursor: pointer;
-    transition: var(--transition-base);
+    transition: all 0.2s ease-out;
     display: grid;
     place-items: center;
 }
@@ -408,7 +599,12 @@ img, video {
     transform: scale(1.1);
 }
 
-/* --- 10. Modal 彈窗樣式 --- */
+.nav-btn:active {
+    transform: scale(0.92);
+    transition-duration: 0.1s;
+}
+
+/* --- 10. Modal 彈窗樣式 (核心更新) --- */
 .modal {
     visibility: hidden;
     opacity: 0;
@@ -423,9 +619,10 @@ img, video {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* 更新: 添加背景色的 transition */
+    transition: visibility 0s 0.3s, opacity 0.3s ease-in-out;
 }
 
-/* (以下樣式皆與前一版相同) */
 .modal-content {
     background-color: var(--bg-cream);
     margin: auto;
@@ -437,10 +634,45 @@ img, video {
     position: relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     color: var(--text-charcoal);
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     max-height: 90vh;
     overflow-y: auto;
+    /* 更新: 為動畫準備初始狀態和 transition */
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
+
+/* 當 Modal 開啟時的樣式 */
+.modal.is-open {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+.modal.is-open .modal-content {
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+.modal-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+.loader {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 5px solid var(--accent-indigo);
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 .close-button {
     color: var(--text-charcoal);
     position: absolute;
@@ -448,7 +680,6 @@ img, video {
     right: 20px;
     font-size: 2rem;
     font-weight: bold;
-    cursor: pointer;
     transition: var(--transition-base);
 }
 .close-button:hover,
@@ -469,6 +700,7 @@ img, video {
     transform: translateY(-2px);
     opacity: 1;
 }
+
 /* --- 11. 暗黑模式主題 --- */
 body.dark-mode {
     --primary-gold: #f8cb74;
@@ -476,8 +708,17 @@ body.dark-mode {
     --text-charcoal: #fdfaf2;
     --accent-indigo: #7b78e0;
 }
+body.dark-mode .pixel-block {
+    background-color: var(--text-charcoal);
+}
 body.dark-mode .portfolio-container { background-color: var(--bg-cream); }
 body.dark-mode .hero-content { background-color: #2c2c2c; }
+body.dark-mode .name-line > span.glitch:before,
+body.dark-mode .name-line > span.glitch:after { 
+    background: #2c2c2c; 
+}
+body.dark-mode .accordion-header h3.glitch:before,
+body.dark-mode .accordion-header h3.glitch:after { background: var(--bg-cream); }
 body.dark-mode .profile-photo { border-color: #2c2c2c; }
 body.dark-mode .filter-btn { border-color: var(--text-charcoal); color: var(--text-charcoal); }
 body.dark-mode .filter-btn:hover,
@@ -489,6 +730,8 @@ body.dark-mode .cta-button:hover { background-color: var(--accent-indigo); color
 body.dark-mode .accordion-item { border-color: var(--text-charcoal); }
 body.dark-mode .accordion-item.is-open > .accordion-header .accordion-icon { background-color: var(--text-charcoal); color: var(--bg-cream); }
 body.dark-mode .accordion-icon { border-color: var(--text-charcoal); color: var(--text-charcoal); }
+body.dark-mode kbd { background-color: #333; border-color: #555; color: #eee; box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 2px 0 0 rgba(255, 255, 255, .1) inset; }
+
 /* --- 12. 響應式設計 --- */
 @media (max-width: 768px) {
     .hero-content { padding: clamp(1.5rem, 6vw, 3rem) 1rem; }
@@ -499,7 +742,9 @@ body.dark-mode .accordion-icon { border-color: var(--text-charcoal); color: var(
     .eye-container { width: 2em; height: 2em; }
     .scroller-nav { display: none; }
     .portfolio-capsule { width: 200px; height: 270px; }
+    html, body { cursor: auto; }
 }
+
 /* --- 13. 頁腳 (Footer) --- */
 .main-footer {
     background-color: var(--bg-cream);
@@ -511,6 +756,7 @@ body.dark-mode .accordion-icon { border-color: var(--text-charcoal); color: var(
     flex-shrink: 0;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
+
 /* --- 10.1 Modal 內容美化 --- */
 .modal-category {
     display: inline-block;

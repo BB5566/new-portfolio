@@ -13,14 +13,30 @@
     />
   </head>
   <body>
+    <!-- ========= 載入畫面 (結構更新) ========= -->
+    <div id="loading-screen">
+      <!-- 新增：像素網格容器 -->
+      <div id="pixel-grid"></div>
+      <div class="loading-text-container">
+        <h2 class="loading-title">BOB TSOU</h2>
+        <p class="loading-subtitle">PORTFOLIO</p>
+        <p class="press-start">PRESS START</p>
+      </div>
+    </div>
+    
+    <!-- 自訂滑鼠游標 -->
+    <div class="cursor-dot-outline"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- 主要內容容器 -->
     <div class="portfolio-container">
       <div class="hero-content">
         <div class="name-container">
           <div class="name-line">
-            <span>B</span><div class="eye-container"><div class="eye"></div></div><span>B</span>
+            <span class="glitch" data-text="B">B</span><div class="eye-container"><div class="eye"></div></div><span class="glitch" data-text="B">B</span>
           </div>
           <div class="name-line">
-            <span>T</span><span>S</span><div class="eye-container"><div class="eye"></div></div><span>U</span>
+            <span class="glitch" data-text="T">T</span><span class="glitch" data-text="S">S</span><div class="eye-container"><div class="eye"></div></div><span class="glitch" data-text="U">U</span>
           </div>
         </div>
         <div class="tagline-capsule">
@@ -30,7 +46,7 @@
       </div>
 
       <section class="accordion-section">
-        <div class="accordion-item is-open">
+        <div id="about-section" class="accordion-item is-open">
           <div class="accordion-header">
             <h3>ABOUT</h3>
             <span class="accordion-icon">&gt;</span>
@@ -46,14 +62,14 @@
             </div>
           </div>
         </div>
-        <div class="accordion-item">
+        <div id="portfolio-section" class="accordion-item">
           <div class="accordion-header">
             <h3>PORTFOLIO</h3>
             <span class="accordion-icon">&gt;</span>
           </div>
           <div class="accordion-content">
             <div class="content-wrapper">
-              <p>這裡是您的作品集展示區。您可以點擊下方的技能標籤來篩選專案，也可以左右拖曳或點擊按鈕來瀏覽。</p>
+              <p>這裡是您的作品集展示區。您可以使用 <kbd>&leftarrow;</kbd> <kbd>&rightarrow;</kbd> 鍵瀏覽，或點擊下方的技能標籤來篩選專案。</p>
               <div id="portfolio-filters" class="portfolio-filters"></div>
               <div class="portfolio-scroller">
                 <div class="portfolio-list"></div>
@@ -65,7 +81,7 @@
             </div>
           </div>
         </div>
-        <div class="accordion-item">
+        <div id="contact-section" class="accordion-item">
           <div class="accordion-header">
             <h3>CONTACT</h3>
             <span class="accordion-icon">&gt;</span>
@@ -90,9 +106,13 @@
       </div>
     </div>
 
+    <!-- 音效開關 -->
+    <button id="audio-toggle-btn" class="is-hidden">🔊</button>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Observer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
