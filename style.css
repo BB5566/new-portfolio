@@ -26,26 +26,28 @@ body {
     height: 100%;
     font-family: 'Montserrat', sans-serif;
     font-weight: 400;
-    background-color: var(--primary-gold); 
+    background-color: var(--bg-cream); 
     color: var(--text-charcoal);
-    transition: background-color 0.3s ease, color 0.3s ease;
-    overflow: hidden; /* 載入時防止滾動 */
+    transition: background-color 0.4s ease, color 0.4s ease;
+    cursor: none;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 body.loaded {
-    overflow: auto; /* 載入後恢復滾動 */
+    overflow-y: auto;
 }
-
 
 body {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    line-height: 1.6;
+    justify-content: flex-start;
+    line-height: 1.7; 
 }
 
-a, button, .accordion-header, .portfolio-capsule, .name-container, .eye-container {
-    cursor: pointer;
+a, button, .accordion-header, .portfolio-capsule, .name-container, .eye-container, .close-button {
+    cursor: none;
 }
 
 a {
@@ -79,7 +81,7 @@ kbd {
     white-space: nowrap;
 }
 
-/* --- 載入畫面樣式 --- */
+/* --- 載入畫面樣式 (無變動) --- */
 #loading-screen {
     position: fixed;
     top: 0;
@@ -92,9 +94,8 @@ kbd {
     align-items: center;
     text-align: center;
     background-color: transparent;
-    cursor: pointer;
+    cursor: none;
 }
-
 #pixel-grid {
     position: absolute;
     top: 0;
@@ -109,8 +110,6 @@ kbd {
     height: 100%;
     background-color: var(--text-charcoal);
 }
-
-
 .loading-text-container {
     color: var(--primary-gold);
     position: relative;
@@ -137,7 +136,54 @@ kbd {
     50% { opacity: 0; }
 }
 
-/* --- 音效開關樣式 --- */
+
+/* --- 自訂滑鼠游標 (新增點擊狀態) --- */
+.cursor-dot,
+.cursor-dot-outline {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    z-index: 10002; 
+    transition: width 0.2s ease-in-out, height 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-indigo);
+    transform: translate(-50%, -50%);
+}
+.cursor-dot-outline {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(74, 71, 163, 0.3);
+    transform: translate(-50%, -50%);
+}
+.cursor-dot-outline.clicking {
+    width: 35px;
+    height: 35px;
+    background-color: rgba(74, 71, 163, 0.5);
+}
+.cursor-dot-outline.hovered {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(74, 71, 163, 0.4);
+}
+.cursor-dot-outline.link-hover {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(248, 203, 116, 0.5);
+    border: 2px solid var(--accent-indigo);
+}
+.cursor-dot-outline.text-hover {
+    width: 30px;
+    height: 30px;
+    background-color: rgba(74, 71, 163, 0.2);
+}
+
+
+/* --- 音效開關樣式 (無變動) --- */
 #audio-toggle-btn {
     position: fixed;
     bottom: 20px;
@@ -157,29 +203,30 @@ kbd {
     transform: scale(0.5);
     transition: all 0.4s ease;
 }
+#audio-toggle-btn:hover {
+    transform: scale(1.1);
+}
+#audio-toggle-btn:active {
+    transform: scale(0.95);
+    transition-duration: 0.1s;
+}
 #audio-toggle-btn.is-hidden {
     opacity: 0;
     pointer-events: none;
-}
-body.dark-mode #audio-toggle-btn {
-    background-color: var(--text-charcoal);
-    color: var(--bg-cream);
-    border-color: var(--bg-cream);
 }
 
 
 /* --- 3. 主要容器 --- */
 .portfolio-container {
-    background-color: var(--bg-cream); 
+    background-color: var(--primary-gold); 
     width: 100%;
-    height: 100%;
     max-width: 1600px;
-    margin: 0 auto;
+    min-height: 100%;
+    margin: 0;
     box-shadow: 0 15px 35px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.4s ease;
     visibility: hidden;
     opacity: 0;
 }
@@ -190,14 +237,42 @@ body.dark-mode #audio-toggle-btn {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: clamp(6.5rem, 9vw, 14rem) 1rem clamp(6rem, 5vw, 2.5rem);
+    padding: clamp(5rem, 8vw, 12rem) 1rem clamp(5rem, 7vw, 10rem);
     text-align: center;
     flex-shrink: 0;
     background-color: var(--primary-gold);
     position: relative;
-    overflow: hidden;
     perspective: 1000px;
+    z-index: 1;
+    transition: background-color 0.4s ease;
 }
+
+.hero-shape {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    color: var(--bg-cream);
+    filter: drop-shadow(0 -8px 8px rgba(0, 0, 0, 0.07));
+    z-index: 0;
+    transition: color 0.4s ease;
+}
+.hero-shape svg {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 150px;
+}
+.hero-shape .shape-fill {
+    fill: currentColor;
+    transition: fill 0.4s ease;
+}
+body.dark-mode .hero-shape {
+    color: var(--bg-cream);
+}
+
 
 .hero-content::after {
     content: '';
@@ -214,48 +289,172 @@ body.dark-mode #audio-toggle-btn {
     opacity: 0.5;
     animation: scanline 20s linear infinite;
     pointer-events: none;
+    z-index: -1;
 }
 @keyframes scanline {
     from { background-position-y: 0; }
     to { background-position-y: 100px; }
 }
-
 .name-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.2rem;
     transition: transform 0.4s ease-out;
     transform-style: preserve-3d;
 }
-
 .name-line {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.15em;
-    font-size: clamp(2.86rem, 10.4vw, 5.85rem);
+    font-size: clamp(2.5rem, 9.5vw, 5.2rem);
     font-weight: 900;
     font-style: italic;
     color: var(--text-charcoal);
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    transition: color 0.3s ease, text-shadow 0.3s ease;
+    transition: color 0.4s ease, text-shadow 0.4s ease;
     margin: 0.1em 0;
     line-height: 1;
 }
-
 .name-container:hover .name-line {
     color: var(--accent-indigo);
 }
-
 .name-line > span, .eye-container {
     display: inline-block;
-    transition: color 0.3s ease;
+    transition: color 0.4s ease;
     position: relative;
 }
+.profile-photo {
+    width: clamp(100px, 20vw, 150px);
+    height: clamp(100px, 20vw, 150px);
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 1.2rem 0;
+    border: 4px solid var(--bg-cream);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1);
+    transition: border-color 0.4s ease;
+}
+.eye-container {
+    width: 0.8em;
+    height: 0.8em;
+    background-color: var(--bg-cream);
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 0.096em var(--text-charcoal);
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+.eye {
+    width: 0.4em;
+    height: 0.4em;
+    background-color: var(--text-charcoal);
+    border-radius: 50%;
+    position: absolute;
+    transition: transform 0.1s ease-out, background-color 0.4s ease;
+}
+.tagline-capsule {
+    background-color: var(--text-charcoal);
+    color: var(--bg-cream);
+    font-size: clamp(0.9rem, 3vw, 1.5rem);
+    font-weight: 700;
+    position: relative;
+    z-index: 10;
+    margin: 1rem auto 0;
+    overflow: hidden;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border-radius: 50%;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+.tagline-capsule p {
+    display: inline-block;
+    flex-shrink: 0;
+    animation: marquee-scroll 25s linear infinite;
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    opacity: 0;
+}
+@keyframes marquee-scroll {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-50%); }
+}
 
-.name-line > span.glitch:before,
-.name-line > span.glitch:after,
+.scroll-down-indicator {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+}
+.mouse {
+    width: 25px;
+    height: 40px;
+    border: 2px solid var(--text-charcoal);
+    border-radius: 60px;
+    position: relative;
+    overflow: hidden;
+}
+.mouse::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--text-charcoal);
+    border-radius: 50%;
+    opacity: 1;
+    animation: wheel 1.5s infinite;
+    -webkit-animation: wheel 1.5s infinite;
+}
+@keyframes wheel {
+    to {
+        opacity: 0;
+        top: 27px;
+    }
+}
+
+
+/* --- 5. 手風琴區塊 (Accordion) --- */
+.accordion-section {
+    padding: 2rem clamp(1rem, 5vw, 4rem);
+    background-color: var(--bg-cream);
+    color: var(--text-charcoal);
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+.accordion-item {
+    border-bottom: 2px solid var(--text-charcoal);
+    transition: border-color 0.4s ease;
+}
+.accordion-item:first-child {
+    border-top: 2px solid var(--text-charcoal);
+}
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+}
+.accordion-header h3 {
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    font-style: italic;
+    transition: color 0.3s ease;
+    margin: 0;
+    position: relative;
+}
+.accordion-header:hover h3 {
+    color: var(--accent-indigo);
+}
+
 .accordion-header h3.glitch:before,
 .accordion-header h3.glitch:after {
     content: attr(data-text);
@@ -265,27 +464,14 @@ body.dark-mode #audio-toggle-btn {
     width: 100%;
     height: 100%;
     overflow: hidden;
-}
-
-/* 核心修正：讓 BOB TSOU 的雜訊背景色符合其所在的 Hero 區塊的金色背景 */
-.name-line > span.glitch:before,
-.name-line > span.glitch:after {
-    background: var(--primary-gold); 
-}
-
-.accordion-header h3.glitch:before,
-.accordion-header h3.glitch:after {
     background: var(--bg-cream);
+    transition: background-color 0.4s ease;
 }
-
-
-.name-line > span.glitch:before,
 .accordion-header h3.glitch:before {
     left: 2px;
     text-shadow: -1px 0 red;
     animation: glitch-anim-1 2s linear infinite reverse;
 }
-.name-line > span.glitch:after,
 .accordion-header h3.glitch:after {
     left: -2px;
     text-shadow: -1px 0 blue;
@@ -306,120 +492,6 @@ body.dark-mode #audio-toggle-btn {
     75% { clip-path: inset(5% 0 80% 0); }
 }
 
-.eye-container.is-glitching {
-    animation: glitch-shake 0.3s ease-in-out infinite;
-}
-@keyframes glitch-shake {
-    0%, 100% { transform: translate(0, 0); }
-    25% { transform: translate(-2px, 2px); }
-    50% { transform: translate(2px, -2px); }
-    75% { transform: translate(1px, 1px); }
-}
-
-
-.profile-photo {
-    width: clamp(100px, 20vw, 150px);
-    height: clamp(100px, 20vw, 150px);
-    border-radius: 50%;
-    object-fit: cover;
-    margin: 0.8rem 0;
-    border: 4px solid var(--bg-cream);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.eye-container {
-    width: 0.8em;
-    height: 0.8em;
-    background-color: var(--bg-cream);
-    border-radius: 50%;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 0.096em var(--text-charcoal);
-    overflow: hidden;
-    flex-shrink: 0;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.eye {
-    width: 0.4em;
-    height: 0.4em;
-    background-color: var(--text-charcoal);
-    border-radius: 50%;
-    position: absolute;
-    transition: transform 0.1s ease-out, background-color 0.3s ease;
-}
-
-.tagline-capsule {
-    background-color: var(--text-charcoal);
-    color: var(--bg-cream);
-    font-size: clamp(0.9rem, 3vw, 1.5rem);
-    font-weight: 700;
-    position: relative;
-    z-index: 10;
-    margin: 1.5rem auto 0.5rem;
-    overflow: hidden;
-    white-space: nowrap;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 50px;
-    height: 50px;
-    padding: 0;
-    border-radius: 50%;
-}
-
-.tagline-capsule p {
-    display: inline-block;
-    padding-left: 100%;
-    animation: marquee-scroll 20s linear infinite;
-    font-size: clamp(1.2rem, 3vw, 2rem);
-    opacity: 0;
-}
-
-@keyframes marquee-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-100%); }
-}
-
-.accordion-section {
-    padding: 2rem clamp(1rem, 5vw, 4rem);
-    background-color: var(--bg-cream);
-    color: var(--text-charcoal);
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.accordion-item {
-    border-bottom: 2px solid var(--text-charcoal);
-    transition: border-color 0.3s ease;
-}
-
-.accordion-item:first-child {
-    border-top: 2px solid var(--text-charcoal);
-}
-
-.accordion-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 0;
-    position: relative;
-}
-
-.accordion-header h3 {
-    font-size: clamp(1.8rem, 5vw, 3.5rem);
-    font-style: italic;
-    transition: color 0.3s ease;
-    margin: 0;
-    opacity: 1;
-    position: relative;
-}
-
-.accordion-header:hover h3 {
-    color: var(--accent-indigo);
-}
-
 .accordion-icon {
     font-weight: 900;
     font-size: 2rem;
@@ -435,47 +507,55 @@ body.dark-mode #audio-toggle-btn {
     transition: all 0.3s ease;
     transform: rotate(0deg);
 }
-
 .accordion-item.is-open > .accordion-header .accordion-icon {
     transform: rotate(90deg);
     background-color: var(--text-charcoal);
     color: var(--bg-cream);
 }
-
 .accordion-content {
     overflow: hidden;
     max-height: 0;
-    transition: max-height 0.5s ease-in-out;
+    transition: max-height 0.7s ease-in-out;
 }
-
-.accordion-item.is-open > .accordion-content {
-    max-height: 2000px;
-}
-
 .accordion-content > .content-wrapper {
     overflow: visible;
     padding-bottom: 2rem;
     padding-top: 1rem;
+    font-size: 1.05rem;
 }
-
 .timeline {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     margin: 2rem 0;
-    gap: 1rem;
+    gap: 1.5rem;
+    border-left: 2px solid var(--accent-indigo);
+    padding-left: 1.5rem;
 }
-
-.timeline-item {
-    font-size: 1.1rem;
+.timeline-item { 
+    font-size: 1.1rem; 
+    position: relative;
 }
-
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background-color: var(--bg-cream);
+    border: 2px solid var(--accent-indigo);
+    border-radius: 50%;
+    transition: background-color 0.4s ease;
+}
 .timeline-year {
     font-weight: bold;
     margin-right: 0.5rem;
     color: var(--accent-indigo);
 }
 
+/* --- 6. 作品集 (Portfolio) --- */
 .portfolio-filters {
     display: flex;
     flex-wrap: wrap;
@@ -483,7 +563,6 @@ body.dark-mode #audio-toggle-btn {
     gap: 0.8rem;
     margin-bottom: 2.5rem;
 }
-
 .filter-btn {
     background-color: transparent;
     border: 2px solid var(--text-charcoal);
@@ -492,13 +571,23 @@ body.dark-mode #audio-toggle-btn {
     border-radius: 999px;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    transition: var(--transition-base);
+    transition: all 0.2s ease-out;
 }
-
-.filter-btn:hover,
-.filter-btn.active {
+.filter-btn:hover {
     background-color: var(--text-charcoal);
     color: var(--bg-cream);
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.filter-btn.active {
+    background-color: var(--accent-indigo);
+    color: var(--pure-white);
+    border-color: var(--accent-indigo);
+    transform: scale(1.05);
+}
+.filter-btn:active, .nav-btn:active {
+    transform: scale(0.98) !important;
+    transition-duration: 0.1s;
 }
 
 .portfolio-scroller {
@@ -507,17 +596,15 @@ body.dark-mode #audio-toggle-btn {
     overflow: hidden;
     padding: 2rem 0;
 }
-
 .portfolio-list {
     display: flex;
     flex-wrap: nowrap;
     width: max-content;
-    min-height: auto;
     padding: 0;
     margin: 0;
+    list-style: none;
     transition: opacity 0.4s ease;
 }
-
 .portfolio-capsule {
     display: block;
     position: relative;
@@ -526,8 +613,6 @@ body.dark-mode #audio-toggle-btn {
     padding: 0;
     border: 2px solid var(--text-charcoal);
     border-radius: 999px;
-    text-align: left;
-    text-decoration: none;
     overflow: hidden;
     box-shadow: var(--shadow-subtle);
     background-color: #000;
@@ -536,25 +621,21 @@ body.dark-mode #audio-toggle-btn {
     margin: 0 1rem;
     flex-shrink: 0;
 }
-
 .portfolio-capsule:hover, .portfolio-capsule.keyboard-focus {
     transform: translateY(-8px) scale(1.05);
     box-shadow: 0 12px 28px rgba(0,0,0,0.18), 0 8px 10px rgba(0,0,0,0.15);
     border-color: var(--accent-indigo);
     z-index: 10;
 }
-
 .capsule-media {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.5s ease;
 }
-
 .portfolio-capsule:hover .capsule-media, .portfolio-capsule.keyboard-focus .capsule-media {
     transform: scale(1.1);
 }
-
 .capsule-overlay {
     position: absolute;
     bottom: 0;
@@ -565,20 +646,17 @@ body.dark-mode #audio-toggle-btn {
     color: var(--pure-white);
     transition: opacity 0.3s ease;
 }
-
 .capsule-title {
     font-size: 1.2rem;
     font-weight: 700;
     margin: 0;
 }
-
 .scroller-nav {
     display: flex;
     justify-content: center;
     gap: 1rem;
     margin-top: 1.5rem;
 }
-
 .nav-btn {
     background-color: transparent;
     border: 2px solid var(--text-charcoal);
@@ -592,19 +670,13 @@ body.dark-mode #audio-toggle-btn {
     display: grid;
     place-items: center;
 }
-
 .nav-btn:hover {
     background-color: var(--text-charcoal);
     color: var(--bg-cream);
     transform: scale(1.1);
 }
 
-.nav-btn:active {
-    transform: scale(0.92);
-    transition-duration: 0.1s;
-}
-
-/* --- 10. Modal 彈窗樣式 (核心更新) --- */
+/* --- 10. Modal 彈窗樣式 --- */
 .modal {
     visibility: hidden;
     opacity: 0;
@@ -614,135 +686,119 @@ body.dark-mode #audio-toggle-btn {
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 更新: 添加背景色的 transition */
-    transition: visibility 0s 0.3s, opacity 0.3s ease-in-out;
+    background-color: rgba(0, 0, 0, 0);
+    transition: visibility 0s 0.4s, opacity 0.4s ease, background-color 0.4s ease;
 }
 
 .modal-content {
     background-color: var(--bg-cream);
     margin: auto;
     padding: 2rem;
-    border: 1px solid var(--text-charcoal);
     border-radius: var(--border-radius-base);
-    width: 80%;
+    width: 90%;
     max-width: 600px;
     position: relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     color: var(--text-charcoal);
     max-height: 90vh;
     overflow-y: auto;
-    /* 更新: 為動畫準備初始狀態和 transition */
     opacity: 0;
-    transform: scale(0.9);
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transform: scale(0.9) translateY(-20px);
+    transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.4s ease, color 0.4s ease;
 }
 
-/* 當 Modal 開啟時的樣式 */
 .modal.is-open {
     visibility: visible;
     opacity: 1;
+    background-color: rgba(0, 0, 0, 0.6);
     transition-delay: 0s;
 }
 
 .modal.is-open .modal-content {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) translateY(0);
 }
-
-
-.modal-loader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
-}
-.loader {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 5px solid var(--accent-indigo);
-    border-top-color: transparent;
-    animation: spin 1s linear infinite;
-}
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.close-button {
-    color: var(--text-charcoal);
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 2rem;
-    font-weight: bold;
-    transition: var(--transition-base);
-}
-.close-button:hover,
-.close-button:focus {
-    color: var(--accent-indigo);
-}
-.cta-button {
-    background-color: var(--text-charcoal);
-    color: var(--bg-cream);
-    padding: 8px 16px;
-    border-radius: 999px;
-    transition: var(--transition-base);
-    display: inline-block;
-}
-.cta-button:hover {
-    background-color: var(--accent-indigo);
-    color: var(--pure-white);
-    transform: translateY(-2px);
-    opacity: 1;
-}
+.modal-loader { display: flex; justify-content: center; align-items: center; min-height: 200px; }
+.loader { width: 50px; height: 50px; border-radius: 50%; border: 5px solid var(--accent-indigo); border-top-color: transparent; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.close-button { color: var(--text-charcoal); position: absolute; top: 10px; right: 20px; font-size: 2rem; font-weight: bold; transition: color 0.4s ease; }
+.close-button:hover, .close-button:focus { color: var(--accent-indigo); }
+.cta-button { background-color: var(--text-charcoal); color: var(--bg-cream); padding: 8px 16px; border-radius: 999px; display: inline-block; transition: all 0.3s ease; }
+.cta-button:hover { background-color: var(--accent-indigo); color: var(--pure-white); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 
 /* --- 11. 暗黑模式主題 --- */
 body.dark-mode {
     --primary-gold: #f8cb74;
-    --bg-cream: #1e1e1e;
+    --bg-cream: #1a1a1a;
     --text-charcoal: #fdfaf2;
     --accent-indigo: #7b78e0;
 }
-body.dark-mode .pixel-block {
-    background-color: var(--text-charcoal);
-}
+body.dark-mode { background-color: var(--bg-cream); }
+body.dark-mode .pixel-block { background-color: var(--text-charcoal); }
 body.dark-mode .portfolio-container { background-color: var(--bg-cream); }
 body.dark-mode .hero-content { background-color: #2c2c2c; }
-body.dark-mode .name-line > span.glitch:before,
-body.dark-mode .name-line > span.glitch:after { 
-    background: #2c2c2c; 
-}
 body.dark-mode .accordion-header h3.glitch:before,
 body.dark-mode .accordion-header h3.glitch:after { background: var(--bg-cream); }
 body.dark-mode .profile-photo { border-color: #2c2c2c; }
+body.dark-mode .accordion-item, body.dark-mode .accordion-item:first-child { border-color: var(--text-charcoal); }
 body.dark-mode .filter-btn { border-color: var(--text-charcoal); color: var(--text-charcoal); }
-body.dark-mode .filter-btn:hover,
-body.dark-mode .filter-btn.active { background-color: var(--text-charcoal); color: var(--bg-cream); }
+body.dark-mode .filter-btn:hover { background-color: var(--text-charcoal); color: var(--bg-cream); }
+body.dark-mode .filter-btn.active { background-color: var(--accent-indigo); border-color: var(--accent-indigo); color: var(--pure-white); }
 body.dark-mode .nav-btn { border-color: var(--text-charcoal); color: var(--text-charcoal); }
 body.dark-mode .nav-btn:hover { background-color: var(--text-charcoal); color: var(--bg-cream); }
-body.dark-mode .cta-button { background-color: var(--text-charcoal); color: var(--bg-cream); }
-body.dark-mode .cta-button:hover { background-color: var(--accent-indigo); color: var(--pure-white); }
-body.dark-mode .accordion-item { border-color: var(--text-charcoal); }
-body.dark-mode .accordion-item.is-open > .accordion-header .accordion-icon { background-color: var(--text-charcoal); color: var(--bg-cream); }
 body.dark-mode .accordion-icon { border-color: var(--text-charcoal); color: var(--text-charcoal); }
-body.dark-mode kbd { background-color: #333; border-color: #555; color: #eee; box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 2px 0 0 rgba(255, 255, 255, .1) inset; }
+body.dark-mode .accordion-item.is-open > .accordion-header .accordion-icon { background-color: var(--text-charcoal); color: var(--bg-cream); }
+body.dark-mode .cta-button { background-color: var(--text-charcoal); color: var(--bg-cream); }
+body.dark-mode .cta-button:hover { background-color: var(--accent-indigo); }
+body.dark-mode #audio-toggle-btn { background-color: var(--text-charcoal); color: var(--bg-cream); border-color: var(--bg-cream); }
+body.dark-mode kbd { background-color: #333; border-color: #555; color: #eee; }
+body.dark-mode .timeline-item::before { background-color: var(--bg-cream); }
 
-/* --- 12. 響應式設計 --- */
+/* --- 12. 響應式設計 (RWD) --- */
 @media (max-width: 768px) {
-    .hero-content { padding: clamp(1.5rem, 6vw, 3rem) 1rem; }
+    html, body { cursor: auto; }
+    a, button, .accordion-header, .portfolio-capsule, .name-container, .eye-container, .close-button { cursor: pointer; }
+    .cursor-dot, .cursor-dot-outline { display: none; }
+    
+    .hero-content { 
+        padding-top: 5rem;
+        padding-bottom: 4rem;
+    }
+
     .name-line { font-size: clamp(2rem, 10vw, 4rem); }
     .accordion-header h3 { font-size: clamp(1.5rem, 4.5vw, 3rem); }
     .accordion-icon { font-size: 1.2rem; width: 35px; height: 35px; }
     .modal-content { width: 90%; padding: 1.5rem; }
-    .eye-container { width: 2em; height: 2em; }
     .scroller-nav { display: none; }
-    .portfolio-capsule { width: 200px; height: 270px; }
-    html, body { cursor: auto; }
+    .portfolio-scroller {
+        overflow: visible;
+        padding: 1rem 0;
+    }
+    .portfolio-list {
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+    .portfolio-capsule {
+        width: 85%;
+        max-width: 320px;
+        height: 250px;
+        border-radius: var(--border-radius-base);
+        margin: 0;
+    }
+    .portfolio-capsule:hover {
+        transform: translateY(-5px) scale(1.03);
+    }
+    .capsule-overlay {
+        padding: 1.5rem;
+    }
+    .capsule-title {
+        font-size: 1.1rem;
+    }
 }
 
 /* --- 13. 頁腳 (Footer) --- */
@@ -754,29 +810,18 @@ body.dark-mode kbd { background-color: #333; border-color: #555; color: #eee; bo
     border-top: 2px solid var(--text-charcoal);
     margin-top: auto;
     flex-shrink: 0;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    width: 100%;
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+body.dark-mode .main-footer {
+    border-top-color: var(--text-charcoal);
 }
 
-/* --- 10.1 Modal 內容美化 --- */
-.modal-category {
-    display: inline-block;
-    background-color: var(--accent-indigo);
-    color: var(--pure-white);
-    padding: 0.2rem 0.8rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
+/* --- Modal 美化樣式 (無變動) --- */
+.modal-category { display: inline-block; background-color: var(--accent-indigo); color: var(--pure-white); padding: 0.2rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; }
 .modal-content h2 { margin-bottom: 0.5rem; }
 .modal-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
-.modal-tag { background-color: #eee; color: #555; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500; }
+.modal-tag { background-color: #eee; color: #555; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500; transition: background-color 0.4s ease, color 0.4s ease; }
 .modal-cover-image { width: 100%; border-radius: var(--border-radius-base); margin-bottom: 1.5rem; }
 .modal-description { line-height: 1.7; margin-bottom: 2rem; }
-.modal-gallery { margin-top: 2rem; border-top: 1px solid #eee; padding-top: 2rem; }
-.gallery-item { margin-bottom: 1.5rem; }
-.gallery-item img { width: 100%; border-radius: var(--border-radius-base); margin-bottom: 0.5rem; }
-.gallery-item .caption { font-size: 0.9rem; color: #666; text-align: center; }
 body.dark-mode .modal-tag { background-color: #333; color: #ccc; }
-body.dark-mode .modal-gallery { border-top-color: #333; }
-body.dark-mode .gallery-item .caption { color: #aaa; }
