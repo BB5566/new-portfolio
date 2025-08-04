@@ -1,358 +1,314 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BOB TSOU | 網頁設計與開發</title>
-    <!-- Bootstrap CSS -->
+    <title>BOB TSOU | Web & UI/UX Designer</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap" rel="stylesheet" />
     <link rel="icon" href="https://www.google.com/s2/favicons?domain=pixelfed.org" type="image/png">
-  </head>
-  <body>
+</head>
+<body>
     <div id="loading-screen">
-      <div id="pixel-grid"></div>
-      <div class="loading-text-container">
-        <h2 class="loading-title"></h2>
-        <p class="loading-subtitle"></p>
-        <p class="press-start">PRESS START</p>
-      </div>
+        <div id="pixel-grid"></div>
+        <div class="loading-text-container">
+            <h2 class="loading-title"></h2>
+            <p class="loading-subtitle"></p>
+            <p class="press-start">PRESS START</p>
+        </div>
     </div>
-    
+
     <div class="cursor-dot-outline"></div>
     <div class="cursor-dot"></div>
 
     <div class="portfolio-container">
-      <header class="hero-content">
-        
-        <div class="name-container">
-          <div class="name-line">
-            <span class="glitch" data-text="B">B</span>
-            <div class="eye-container">
-              <div class="eye"></div>
+        <header class="hero-content">
+            <div class="particles-container">
+                <div class="code-particle">&lt;div&gt;</div>
+                <div class="code-particle">CSS</div>
+                <div class="code-particle">{ }</div>
+                <div class="code-particle">PHP</div>
+                <div class="code-particle">&lt;/&gt;</div>
+                <div class="code-particle">JS</div>
+                <div class="code-particle">( )</div>
+                <div class="code-particle">SQL</div>
             </div>
-            <span class="glitch" data-text="B">B</span>
-          </div>
-          <div class="name-line">
-            <span class="glitch" data-text="T">T</span>
-            <span class="glitch" data-text="S">S</span>
-            <div class="eye-container">
-              <div class="eye"></div>
-            </div>
-            <span class="glitch" data-text="U">U</span>
-          </div>
-        </div>
-        
-        <div class="tagline-container">
-          <div class="tagline-capsule">
-            <div class="typing-text" id="typing-text"></div>
-            <span class="typing-cursor">|</span>
-          </div>
-          <div class="tagline-skills">
-            <span class="skill-badge">PHP</span>
-            <span class="skill-badge">MySQL</span>
-            <span class="skill-badge">CSS</span>
-            <span class="skill-badge">UI/UX</span>
-          </div>
-        </div>
-        
-        <div class="profile-container">
-          <img src="your-photo.png" alt="Bob Tsou 的大頭照" class="profile-photo" />
-          <div class="profile-actions">
-            <a href="#contact-section" class="cta-primary">
-              <span class="cta-icon">💬</span>
-              <span class="cta-text">開始合作</span>
-            </a>
-            <a href="resume-bob-tsou.pdf" class="cta-secondary" download>
-              <span class="cta-icon">📄</span>
-              <span class="cta-text">下載履歷</span>
-            </a>
-          </div>
-        </div>
 
-        <div class="scroll-down-indicator">
-            <div class="mouse"></div>
-        </div>
-
-        <div class="hero-shape">
-            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M0,60 C400,100 800,20 1200,60 L1200,120 L0,120 Z" fill="#fdfaf2"></path>
-            </svg>
-        </div>
-      </header>
-
-      <main class="accordion" id="main-accordion">
-        <section id="about-section" class="accordion-item">
-          <h2 class="accordion-header" id="heading-about">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-about" aria-expanded="false" aria-controls="collapse-about">
-              <h3>ABOUT</h3>
-            </button>
-          </h2>
-          <div id="collapse-about" class="accordion-collapse collapse" aria-labelledby="heading-about" data-bs-parent="#main-accordion">
-            <div class="accordion-body">
-              <div class="content-wrapper">
-                <div class="intro-text">
-                  <p class="highlight-intro">從平面設計師到網頁開發工程師，我帶著設計師的美感與開發者的邏輯思維，致力於創造兼具美觀與功能的數位體驗。</p>
-                  
-                  <div class="skills-showcase">
-                    <div class="skill-category">
-                      <h4>🎨 設計技能</h4>
-                      <p>擁有豐富的平面設計經驗，深諳色彩搭配、版面構成與使用者體驗設計，能夠將抽象的創意具象化為具體的視覺作品。</p>
-                      <div class="skill-bars">
-                        <div class="skill-item">
-                          <span class="skill-name">UI/UX Design</span>
-                          <div class="skill-bar">
-                            <div class="skill-progress" data-level="90"></div>
-                          </div>
-                        </div>
-                        <div class="skill-item">
-                          <span class="skill-name">Adobe Creative Suite</span>
-                          <div class="skill-bar">
-                            <div class="skill-progress" data-level="85"></div>
-                          </div>
-                        </div>
-                        <div class="skill-item">
-                          <span class="skill-name">Figma</span>
-                          <div class="skill-bar">
-                            <div class="skill-progress" data-level="88"></div>
-                          </div>
-                        </div>
-                      </div>
+            <div class="name-container">
+                <div class="name-line">
+                    <span class="glitch" data-text="B">B</span>
+                    <div class="eye-container">
+                        <div class="eye"></div>
                     </div>
-                    
-                    <div class="skill-category">
-                      <h4>💻 開發技能</h4>
-                      <p>熟練運用 PHP、MySQL、CSS、JavaScript 等技術，具備前後端開發能力，能夠獨立完成從設計到上線的完整專案流程。</p>
-                      <div class="skill-bars">
-                        <div class="skill-item">
-                          <span class="skill-name">HTML/CSS</span>
-                          <div class="skill-bar">
-                            <div class="skill-progress" data-level="92"></div>
-                          </div>
-                        </div>
-                        <div class="skill-item">
-                          <span class="skill-name">JavaScript</span>
-                          <div class="skill-bar">
-                            <div class="skill-progress" data-level="85"></div>
-                          </div>
-                        </div>
-                        <div class="skill-item">
-                          <span class="skill-name">PHP/MySQL</span>
-                          <div class="skill-bar">
-                            <div class="skill-progress" data-level="80"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div class="skill-category">
-                      <h4>🚀 跨領域優勢</h4>
-                      <p>結合設計思維與程式邏輯，能夠在開發過程中保持對美感的敏銳度，創造出既美觀又實用的網頁作品，為團隊帶來獨特價值。</p>
-                      <div class="skill-bars">
-                        <div class="skill-item">
-                          <span class="skill-name">專案管理</span>
-                          <div class="skill-bar">
-                            <div class="skill-progress" data-level="78"></div>
-                          </div>
-                        </div>
-                        <div class="skill-item">
-                          <span class="skill-name">團隊協作</span>
-                          <div class="skill-bar">
-                            <div class="skill-progress" data-level="88"></div>
-                          </div>
-                        </div>
-                        <div class="skill-item">
-                          <span class="skill-name">問題解決</span>
-                          <div class="skill-bar">
-                            <div class="skill-progress" data-level="90"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    <span class="glitch" data-text="B">B</span>
                 </div>
+                <div class="name-line">
+                    <span class="glitch" data-text="T">T</span>
+                    <span class="glitch" data-text="S">S</span>
+                    <div class="eye-container">
+                        <div class="eye"></div>
+                    </div>
+                    <span class="glitch" data-text="U">U</span>
+                </div>
+            </div>
+
+            <div class="tagline-container">
+                <div class="tagline-capsule">
+                    <div class="typing-text" id="typing-text"></div>
+                    <span class="typing-cursor">|</span>
+                </div>
+                <div class="tagline-skills">
+                    <span class="skill-badge">UI/UX</span>
+                    <span class="skill-badge">Front-End</span>
+                    <span class="skill-badge">Back-End</span>
+                    <span class="skill-badge">Design</span>
+                </div>
+            </div>
+
+            <div class="profile-container">
+                <img src="your-photo.png" alt="Bob Tsou 的大頭照" class="profile-photo" />
+                <div class="profile-actions">
+                    <a href="#contact-section" class="cta-primary">
+                        <span class="cta-icon">💬</span>
+                        <span class="cta-text">開始合作</span>
+                    </a>
+                    <a href="履歷_版本2_BB.pdf" class="cta-secondary" download>
+                        <span class="cta-icon">📄</span>
+                        <span class="cta-text">下載履歷</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="scroll-down-indicator">
+                <div class="mouse"></div>
+            </div>
+
+            <div class="hero-shape">
+                <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                    <path id="wave-path" d="M0,40 Q600,80 1200,40 L1200,120 L0,120 Z" class="shape-fill"></path>
+                </svg>
+            </div>
+        </header>
+
+        <main class="accordion-section">
+            <div class="accordion" id="mainAccordion">
                 
-                <div class="journey-timeline">
-                  <h4 class="timeline-title">🛤️ 我的轉職之路</h4>
-                  <div class="timeline">
-                    <div class="timeline-item">
-                      <span class="timeline-year">2022</span>
-                      <div class="timeline-content">
-                        <span class="timeline-role">平面設計師</span>
-                        <span class="timeline-desc">專精於品牌識別、海報設計與視覺傳達，累積豐富的設計美感與創意思維</span>
-                      </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingAbout">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAbout" aria-expanded="true" aria-controls="collapseAbout">
+                            ABOUT
+                        </button>
+                    </h2>
+                    <div id="collapseAbout" class="accordion-collapse collapse show" aria-labelledby="headingAbout" data-bs-parent="#mainAccordion">
+                        <div class="accordion-body">
+                            <p class="highlight-intro">
+                                擁有超過7年平面設計與電商行銷經驗，擅長商品視覺規劃、促銷活動設計與廣告素材製作，具備跨平台整合行銷實績(蝦皮、Momo、Shopline)。為進一步結合設計與開發能力，我投入920小時密集網頁開發訓練，已熟悉HTML、CSS、JavaScript、Bootstrap、Git 等前端技能。熱衷於打造具商業價值與良好使用者體驗的數位產品。
+                            </p>
+                            
+                            <h4 class="section-title">SKILLS</h4>
+                            <div class="skills-grid">
+                                <div class="skill-card">
+                                    <h5>設計 (Design)</h5>
+                                    <p>Photoshop, Illustrator, Figma</p>
+                                </div>
+                                <div class="skill-card">
+                                    <h5>前端 (Front-end)</h5>
+                                    <p>HTML, CSS, JavaScript, Bootstrap</p>
+                                </div>
+                                <div class="skill-card">
+                                    <h5>後端 (Back-end)</h5>
+                                    <p>PHP, MySQL</p>
+                                </div>
+                                <div class="skill-card">
+                                    <h5>其他 (Others)</h5>
+                                    <p>Git, GitHub</p>
+                                </div>
+                            </div>
+                            
+                            <h4 class="section-title">WORK EXPERIENCE</h4>
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-meta">
+                                        <span class="timeline-year">2024 - 2025</span>
+                                        <span class="timeline-company">東城國際</span>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h5 class="timeline-role">行銷美編專員</h5>
+                                        <p>主導 PChome24h 活動頁面設計與動線優化，創下單檔活動頁面轉換率提升15%-25%的紀錄。並設計社群廣告圖文，成功提升互動率20%-30%。</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-meta">
+                                        <span class="timeline-year">2023 - 2024</span>
+                                        <span class="timeline-company">品鞋公司</span>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h5 class="timeline-role">電商行銷專員</h5>
+                                        <p>獨立營運 momo 與蝦皮賣場，創下月營業額穩定維持在80-100萬元的成績。執行廣告投放，成功帶動品牌曝光與業績成長。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                             <h4 class="section-title">EDUCATION</h4>
+                             <div class="timeline">
+                                 <div class="timeline-item">
+                                     <div class="timeline-meta">
+                                         <span class="timeline-year">2025</span>
+                                         <span class="timeline-company">泰山職訓局</span>
+                                     </div>
+                                     <div class="timeline-content">
+                                         <h5 class="timeline-role">PHP資料庫網頁設計 (920小時)</h5>
+                                         <p>學習內容包含: PHP程式設計、MySQL 資料庫管理、API串接等。</p>
+                                     </div>
+                                 </div>
+                                 <div class="timeline-item">
+                                     <div class="timeline-meta">
+                                         <span class="timeline-year">2012 - 2014</span>
+                                         <span class="timeline-company">輔仁大學</span>
+                                     </div>
+                                     <div class="timeline-content">
+                                         <h5 class="timeline-role">應用美術系 (肄業)</h5>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
                     </div>
-                    <div class="timeline-item">
-                      <span class="timeline-year">2023</span>
-                      <div class="timeline-content">
-                        <span class="timeline-role">轉職學習前端/後端</span>
-                        <span class="timeline-desc">參加職業訓練課程，學習 HTML、CSS、JavaScript、PHP、MySQL 等技術，為轉職做好充分準備</span>
-                      </div>
-                    </div>
-                    <div class="timeline-item">
-                      <span class="timeline-year">2024</span>
-                      <div class="timeline-content">
-                        <span class="timeline-role">網頁開發工程師</span>
-                        <span class="timeline-desc">成功轉職，融合設計背景與程式技能，專注於創造優質的網頁開發作品</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section id="portfolio-section" class="accordion-item">
-          <h2 class="accordion-header" id="heading-portfolio">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-portfolio" aria-expanded="false" aria-controls="collapse-portfolio">
-              <h3>PORTFOLIO</h3>
-            </button>
-          </h2>
-          <div id="collapse-portfolio" class="accordion-collapse collapse" aria-labelledby="heading-portfolio" data-bs-parent="#main-accordion">
-            <div class="accordion-body">
-              <div class="content-wrapper">
-                <p>這裡是您的作品集展示區。您可以使用 <kbd>&leftarrow;</kbd> <kbd>&rightarrow;</kbd> 鍵瀏覽，或點擊下方的技能標籤來篩選專案。</p>
-                <div id="portfolio-filters" class="portfolio-filters"></div>
-                
-                <div class="portfolio-skeleton" style="display: none;">
-                  <div class="skeleton-filters">
-                    <div class="skeleton-filter"></div>
-                    <div class="skeleton-filter"></div>
-                    <div class="skeleton-filter"></div>
-                    <div class="skeleton-filter"></div>
-                  </div>
-                  <div class="skeleton-projects">
-                    <div class="skeleton-project"></div>
-                    <div class="skeleton-project"></div>
-                    <div class="skeleton-project"></div>
-                  </div>
-                </div>
-                
-                <div class="portfolio-scroller">
-                  <div class="portfolio-list"></div>
-                </div>
-                <div class="scroller-nav">
-                  <button class="nav-btn prev-btn">&lt;</button>
-                  <button class="nav-btn next-btn">&gt;</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section id="contact-section" class="accordion-item">
-          <h2 class="accordion-header" id="heading-contact">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-contact" aria-expanded="false" aria-controls="collapse-contact">
-              <h3>CONTACT</h3>
-            </button>
-          </h2>
-          <div id="collapse-contact" class="accordion-collapse collapse" aria-labelledby="heading-contact" data-bs-parent="#main-accordion">
-            <div class="accordion-body">
-              <div class="content-wrapper">
-                <div class="contact-intro">
-                  <h4>🚀 準備開始合作了嗎？</h4>
-                  <p>無論是網站開發、UI/UX 設計，還是想討論任何創意專案，我都很樂意與您聊聊！</p>
                 </div>
 
-                <div class="contact-container">
-                  <div class="contact-info">
-                    <div class="contact-method">
-                      <div class="contact-icon">📧</div>
-                      <div class="contact-details">
-                        <h5>Email</h5>
-                        <p>bobtsou.dev@gmail.com</p>
-                      </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingPortfolio">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePortfolio" aria-expanded="false" aria-controls="collapsePortfolio">
+                            PORTFOLIO
+                        </button>
+                    </h2>
+                    <div id="collapsePortfolio" class="accordion-collapse collapse" aria-labelledby="headingPortfolio" data-bs-parent="#mainAccordion">
+                        <div class="accordion-body">
+                            <p>這裡是我的作品集展示區。點擊下方的按鈕來篩選專案。</p>
+                            <div id="portfolio-filters" class="portfolio-filters"></div>
+                            <div class="portfolio-scroller">
+                                <div class="portfolio-list">
+                                    </div>
+                            </div>
+                             <div class="scroller-nav">
+                                <button class="nav-btn prev-btn">&lt;</button>
+                                <button class="nav-btn next-btn">&gt;</button>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="contact-method">
-                      <div class="contact-icon">💼</div>
-                      <div class="contact-details">
-                        <h5>LinkedIn</h5>
-                        <p>linkedin.com/in/bobtsou</p>
-                      </div>
-                    </div>
-                    
-                    <div class="contact-method">
-                      <div class="contact-icon">📱</div>
-                      <div class="contact-details">
-                        <h5>手機</h5>
-                        <p>+886 912-345-678</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <form class="contact-form" id="contact-form">
-                    <div class="form-group">
-                      <label for="contact-name">姓名 *</label>
-                      <input type="text" id="contact-name" name="name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                      <label for="contact-email">Email *</label>
-                      <input type="email" id="contact-email" name="email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                      <label for="contact-subject">主旨 *</label>
-                      <select id="contact-subject" name="subject" required>
-                        <option value="">請選擇合作類型</option>
-                        <option value="website">網站開發</option>
-                        <option value="design">UI/UX 設計</option>
-                        <option value="fullstack">全端開發</option>
-                        <option value="consultation">諮詢服務</option>
-                        <option value="other">其他</option>
-                      </select>
-                    </div>
-                    
-                    <div class="form-group">
-                      <label for="contact-message">訊息 *</label>
-                      <textarea id="contact-message" name="message" rows="4" placeholder="請簡單描述您的專案需求..." required></textarea>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn">
-                      <span class="btn-text">發送訊息</span>
-                      <span class="btn-loading" style="display: none;">發送中...</span>
-                    </button>
-                  </form>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
 
-      <footer class="main-footer">
-        <p>&copy; 2025 Bob Tsou. 版權所有。</p>
-      </footer>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingContact">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContact" aria-expanded="false" aria-controls="collapseContact">
+                            CONTACT
+                        </button>
+                    </h2>
+                    <div id="collapseContact" class="accordion-collapse collapse" aria-labelledby="headingContact" data-bs-parent="#mainAccordion">
+                        <div class="accordion-body">
+                            <div class="contact-intro">
+                                <h4>🚀 準備開始合作了嗎？</h4>
+                                <p>我熱衷於發揮設計與技術的雙重優勢，期待與您一同打造出色的數位產品！</p>
+                            </div>
+                            <div class="container-fluid">
+                                <div class="row g-4">
+                                    <div class="col-lg-5">
+                                        <div class="contact-info">
+                                            <div class="contact-method">
+                                                <div class="contact-icon">📧</div>
+                                                <div class="contact-details">
+                                                    <h5>Email</h5>
+                                                    <p><a href="mailto:hello@bb-made.com">hello@bb-made.com</a></p>
+                                                </div>
+                                            </div>
+                                            <div class="contact-method">
+                                                <div class="contact-icon">📱</div>
+                                                <div class="contact-details">
+                                                    <h5>手機</h5>
+                                                    <p>0912-345-678</p>
+                                                </div>
+                                            </div>
+                                            <div class="contact-method">
+                                                <div class="contact-icon">🌐</div>
+                                                <div class="contact-details">
+                                                    <h5>個人網站</h5>
+                                                    <p><a href="http://bb-made.com" target="_blank">bb-made.com</a></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7">
+                                        <form class="contact-form" id="contact-form">
+                                            <div class="form-group floating-label-group">
+                                                <input type="text" id="contact-name" name="name" required placeholder=" ">
+                                                <label for="contact-name">姓名 *</label>
+                                            </div>
+                                            <div class="form-group floating-label-group">
+                                                <input type="email" id="contact-email" name="email" required placeholder=" ">
+                                                <label for="contact-email">Email *</label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="contact-subject" class="static-label">主旨 *</label>
+                                                <select id="contact-subject" name="subject" required>
+                                                    <option value="">請選擇合作類型</option>
+                                                    <option value="website">網站開發</option>
+                                                    <option value="design">UI/UX 設計</option>
+                                                    <option value="fullstack">全端開發</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group floating-label-group">
+                                                <textarea id="contact-message" name="message" rows="4" required placeholder=" "></textarea>
+                                                <label for="contact-message">訊息 *</label>
+                                            </div>
+                                            <button type="submit" class="submit-btn">
+                                                <span class="btn-text">發送訊息</span>
+                                                <span class="btn-loading" style="display: none;">發送中...</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <p>&copy; 2025 Bob Tsou. 版權所有。</p>
+        </footer>
     </div>
 
-    <div class="modal fade" id="project-modal" tabindex="-1" aria-labelledby="project-modal-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="project-modal-label">專案細節</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="modal-body">
-            <!-- 專案細節將會動態載入於此 -->
-          </div>
+    <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="projectModalLabel">專案詳情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-body-content">
+                    </div>
+            </div>
         </div>
-      </div>
     </div>
 
     <button id="audio-toggle-btn" class="is-hidden">🔊</button>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Observer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script> 
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    
     <script src="script.js"></script>
-  </body>
+</body>
 </html>
