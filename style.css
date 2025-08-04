@@ -586,23 +586,24 @@ body {
 }
 .timeline {
   position: relative;
-  padding-left: 2.5rem;
+  padding-left: 30px;
   --timeline-progress: 0;
 }
 .timeline::before {
   content: "";
   position: absolute;
-  left: 10px;
+  left: 15px;
   top: 10px;
   bottom: 10px;
   width: 3px;
   background: var(--c-border);
   border-radius: 3px;
+  z-index: 0;
 }
 .timeline::after {
   content: "";
   position: absolute;
-  left: 10px;
+  left: 15px;
   top: 10px;
   width: 3px;
   height: calc(100% - 20px);
@@ -611,10 +612,12 @@ body {
   transform: scaleY(var(--timeline-progress));
   transform-origin: top;
   transition: transform 0.5s ease-out;
+  z-index: 1; /* 確保線在圓點下方 */
 }
 .timeline-item {
   position: relative;
   margin-bottom: 2.5rem;
+   z-index: 5;
 }
 .timeline-item:last-child {
   margin-bottom: 0;
@@ -622,15 +625,17 @@ body {
 .timeline-item::before {
   content: "";
   position: absolute;
-  left: -2.5rem;
+  /* 【核心修正】重新計算 left 的值，使其完美居中 */
+  left: -21px;
   top: 8px;
-  transform: translateX(-50%);
+  /* 【核心修正】移除 transform，因為我們已經手動計算了中心點 */
+  /* transform: translateX(-50%); */
   width: 18px;
   height: 18px;
   background-color: var(--c-surface);
   border: 4px solid var(--c-accent);
   border-radius: 50%;
-  z-index: 1;
+  z-index: 10; /* 確保它在線的上方 */
   transition: all 0.3s ease;
 }
 .timeline-item:hover::before {
