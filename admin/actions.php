@@ -1,16 +1,19 @@
 <?php
 // FILE: admin/actions.php
-// --- UPDATED: 處理後台所有資料庫操作 (PDO 版本) ---
+// --- UPDATED: 處理後台所有資料庫操作 (已修正 github_link 儲存邏輯) ---
 session_start();
 include '../api/db_connect.php';
 
 // UPDATED: handle_upload function to accept more file types
-function handle_upload($file_input_name, $old_file_path = '', $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']) {
+function handle_upload($file_input_name, $old_file_path = '', $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+{
     if (isset($_FILES[$file_input_name]) && $_FILES[$file_input_name]['error'] === UPLOAD_ERR_OK) {
         $upload_dir = '../uploads/';
-        if (!is_dir($upload_dir)) { mkdir($upload_dir, 0755, true); }
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
         $file = $_FILES[$file_input_name];
-        
+
         if (!in_array($file['type'], $allowed_types)) {
             $_SESSION['message'] = '錯誤：不支援的檔案格式。';
             $_SESSION['message_type'] = 'error';
@@ -34,7 +37,8 @@ function handle_upload($file_input_name, $old_file_path = '', $allowed_types = [
 }
 
 // (此函式無變動)
-function update_tags($pdo, $project_id, $tags) {
+function update_tags($pdo, $project_id, $tags)
+{
     $stmt = $pdo->prepare("DELETE FROM project_tag_map WHERE project_id = ?");
     $stmt->execute([$project_id]);
     if (!empty($tags)) {
@@ -47,7 +51,8 @@ function update_tags($pdo, $project_id, $tags) {
 }
 
 // (此函式無變動)
-function handle_gallery_uploads($pdo, $project_id) {
+function handle_gallery_uploads($pdo, $project_id)
+{
     if (isset($_FILES['gallery_images']) && is_array($_FILES['gallery_images']['name'])) {
         $files = $_FILES['gallery_images'];
         $upload_dir = '../uploads/';
@@ -72,7 +77,8 @@ function handle_gallery_uploads($pdo, $project_id) {
 }
 
 // (此函式無變動)
-function update_gallery_meta($pdo, $project_id, $captions, $sort_orders) {
+function update_gallery_meta($pdo, $project_id, $captions, $sort_orders)
+{
     if (!empty($captions) && !empty($sort_orders)) {
         $sql = "UPDATE project_galleries SET caption = ?, sort_order = ? WHERE id = ? AND project_id = ?";
         $stmt = $pdo->prepare($sql);
@@ -110,47 +116,66 @@ try {
     switch ($action) {
         case 'create':
             $cover_image_path = handle_upload('cover_image');
-            if ($cover_image_path === false) { throw new Exception($_SESSION['message'] ?? '封面圖片上傳失敗'); }
-            
-            // NEW: Handle preview media upload
+            if ($cover_image_path === false) {
+                throw new Exception($_SESSION['message'] ?? '封面圖片上傳失敗');
+            }
+
             $preview_media_path = handle_upload('preview_media', '', ['image/gif', 'video/mp4', 'video/webm']);
-            if ($preview_media_path === false) { throw new Exception($_SESSION['message'] ?? '預覽媒體上傳失敗'); }
+            if ($preview_media_path === false) {
+                throw new Exception($_SESSION['message'] ?? '預覽媒體上傳失敗');
+            }
 
             $is_published = isset($_POST['is_published']) ? 1 : 0;
-            $sql = "INSERT INTO projects (category_id, title, description, cover_image_url, preview_media_url, project_link, sort_order, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$_POST['category_id'], $_POST['title'], $_POST['description'], $cover_image_path, $preview_media_path, $_POST['project_link'], $_POST['sort_order'], $is_published]);
             
+            // ▼▼▼【已修正】在 SQL INSERT 指令中加入 github_link 欄位 ▼▼▼
+            $sql = "INSERT INTO projects (category_id, title, description, cover_image_url, preview_media_url, project_link, github_link, sort_order, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $pdo->prepare($sql);
+            
+            // ▼▼▼【已修正】在 execute 陣列中加入對應的 github_link 變數 ▼▼▼
+            $stmt->execute([$_POST['category_id'], $_POST['title'], $_POST['description'], $cover_image_path, $preview_media_path, $_POST['project_link'], $_POST['github_link'], $_POST['sort_order'], $is_published]);
+
             $project_id = $pdo->lastInsertId();
             update_tags($pdo, $project_id, $_POST['tags'] ?? []);
-            
-            $_SESSION['message'] = "專案已成功新增！現在您可以為它新增圖庫圖片。";
+
+            // 新增專案後，也處理圖庫上傳
+            handle_gallery_uploads($pdo, $project_id);
+
+            $_SESSION['message'] = "專案已成功新增！";
             $_SESSION['message_type'] = 'success';
             $redirect_id = $project_id;
             break;
 
         case 'update':
             $id = intval($_POST['id']);
-            if ($id <= 0) { throw new Exception("無效的 ID"); }
-            
+            if ($id <= 0) {
+                throw new Exception("無效的 ID");
+            }
+
             $old_cover_image = $_POST['old_cover_image'];
             $cover_image_path = handle_upload('cover_image', $old_cover_image);
-            if ($cover_image_path === false) { throw new Exception($_SESSION['message'] ?? '封面圖片上傳失敗'); }
+            if ($cover_image_path === false) {
+                throw new Exception($_SESSION['message'] ?? '封面圖片上傳失敗');
+            }
 
-            // NEW: Handle preview media update
             $old_preview_media = $_POST['old_preview_media'];
             $preview_media_path = handle_upload('preview_media', $old_preview_media, ['image/gif', 'video/mp4', 'video/webm']);
-            if ($preview_media_path === false) { throw new Exception($_SESSION['message'] ?? '預覽媒體上傳失敗'); }
+            if ($preview_media_path === false) {
+                throw new Exception($_SESSION['message'] ?? '預覽媒體上傳失敗');
+            }
 
             $is_published = isset($_POST['is_published']) ? 1 : 0;
-            $sql = "UPDATE projects SET category_id = ?, title = ?, description = ?, cover_image_url = ?, preview_media_url = ?, project_link = ?, sort_order = ?, is_published = ? WHERE id = ?";
+
+            // ▼▼▼【已修正】在 SQL UPDATE 指令中加入 github_link 欄位 ▼▼▼
+            $sql = "UPDATE projects SET category_id = ?, title = ?, description = ?, cover_image_url = ?, preview_media_url = ?, project_link = ?, github_link = ?, sort_order = ?, is_published = ? WHERE id = ?";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$_POST['category_id'], $_POST['title'], $_POST['description'], $cover_image_path, $preview_media_path, $_POST['project_link'], $_POST['sort_order'], $is_published, $id]);
-            
+
+            // ▼▼▼【已修正】在 execute 陣列中加入對應的 github_link 變數 ▼▼▼
+            $stmt->execute([$_POST['category_id'], $_POST['title'], $_POST['description'], $cover_image_path, $preview_media_path, $_POST['project_link'], $_POST['github_link'], $_POST['sort_order'], $is_published, $id]);
+
             update_tags($pdo, $id, $_POST['tags'] ?? []);
             update_gallery_meta($pdo, $id, $_POST['captions'] ?? [], $_POST['sort_orders'] ?? []);
             handle_gallery_uploads($pdo, $id);
-            
+
             $_SESSION['message'] = "專案已成功更新！";
             $_SESSION['message_type'] = 'success';
             $redirect_id = $id;
@@ -158,27 +183,35 @@ try {
 
         case 'delete':
             $id = intval($_GET['id']);
-            if ($id <= 0) { throw new Exception("無效的 ID"); }
-            
+            if ($id <= 0) {
+                throw new Exception("無效的 ID");
+            }
+
             // Get all file paths to delete
             $stmt = $pdo->prepare("SELECT cover_image_url, preview_media_url FROM projects WHERE id = ?");
             $stmt->execute([$id]);
             $project = $stmt->fetch();
             if ($project) {
-                if (!empty($project['cover_image_url']) && file_exists('../' . $project['cover_image_url'])) { @unlink('../' . $project['cover_image_url']); }
-                if (!empty($project['preview_media_url']) && file_exists('../' . $project['preview_media_url'])) { @unlink('../' . $project['preview_media_url']); }
+                if (!empty($project['cover_image_url']) && file_exists('../' . $project['cover_image_url'])) {
+                    @unlink('../' . $project['cover_image_url']);
+                }
+                if (!empty($project['preview_media_url']) && file_exists('../' . $project['preview_media_url'])) {
+                    @unlink('../' . $project['preview_media_url']);
+                }
             }
-            
+
             $stmt = $pdo->prepare("SELECT image_url FROM project_galleries WHERE project_id = ?");
             $stmt->execute([$id]);
             $gallery_images = $stmt->fetchAll();
             foreach ($gallery_images as $img) {
-                if (!empty($img['image_url']) && file_exists('../' . $img['image_url'])) { @unlink('../' . $img['image_url']); }
+                if (!empty($img['image_url']) && file_exists('../' . $img['image_url'])) {
+                    @unlink('../' . $img['image_url']);
+                }
             }
-            
+
             $stmt = $pdo->prepare("DELETE FROM projects WHERE id = ?");
             $stmt->execute([$id]);
-            
+
             $_SESSION['message'] = "專案已成功刪除！";
             $_SESSION['message_type'] = 'success';
             break;
@@ -195,3 +228,4 @@ if (isset($redirect_id)) {
 } else {
     redirect('index.php');
 }
+?>

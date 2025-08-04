@@ -5,8 +5,8 @@
   --text-charcoal: #2c2c2c;
   --bg-cream: #fdfaf2;
   --pure-white: #ffffff;
-  --border-radius-base: 20px; /* 統一圓角 */
-  --border-radius-capsule: 999px; /* 膠囊圓角 */
+  --border-radius-base: 20px;
+  --border-radius-capsule: 999px;
   --transition-base: all 0.3s ease-in-out;
   --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.08);
 
@@ -43,10 +43,13 @@ body {
   font-weight: 400;
   background-color: var(--c-bg);
   color: var(--c-text);
-  transition: background-color 0.4s ease, color 0.4s ease;
   cursor: none;
   overflow-x: hidden;
   overflow-y: hidden;
+}
+* {
+  transition: background-color 0.4s ease, color 0.4s ease,
+    border-color 0.4s ease, fill 0.4s ease;
 }
 body.loaded {
   overflow-y: auto;
@@ -64,13 +67,14 @@ button,
 .portfolio-capsule,
 .name-container,
 .eye-container,
-.close-button {
+.close-button,
+.glightbox,
+.filmstrip-capsule {
   cursor: none;
 }
 a {
   color: var(--c-accent);
   text-decoration: none;
-  transition: var(--transition-base);
 }
 a:hover {
   opacity: 0.8;
@@ -82,7 +86,7 @@ video {
   display: block;
 }
 
-/* --- 載入畫面 --- */
+/* --- 3. 載入 & Hero & 基礎 UI --- */
 #loading-screen {
   position: fixed;
   top: 0;
@@ -138,8 +142,6 @@ video {
     opacity: 0;
   }
 }
-
-/* --- 自訂滑鼠游標 & 光暈 --- */
 .cursor-dot,
 .cursor-dot-outline {
   pointer-events: none;
@@ -170,8 +172,6 @@ video {
   background-color: rgba(74, 71, 163, 0.3);
   backdrop-filter: blur(2px);
 }
-
-/* --- 3. 主要容器 --- */
 .portfolio-container {
   background-color: var(--c-primary);
   width: 100%;
@@ -181,12 +181,9 @@ video {
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  transition: background-color 0.4s ease;
   visibility: hidden;
   opacity: 0;
 }
-
-/* --- 4. Hero Content --- */
 .hero-content {
   display: flex;
   flex-direction: column;
@@ -198,7 +195,7 @@ video {
   background-color: var(--c-primary);
   position: relative;
   z-index: 10;
-  transition: background-color 0.4s ease;
+  overflow: hidden;
 }
 .hero-shape {
   position: absolute;
@@ -209,7 +206,6 @@ video {
   line-height: 0;
   color: var(--c-bg);
   z-index: 0;
-  transition: color 0.4s ease;
 }
 .hero-shape svg {
   position: relative;
@@ -228,29 +224,20 @@ video {
   height: 100%;
   pointer-events: none;
   overflow: hidden;
-  z-index: -1;
+  z-index: 0;
 }
 .particle {
   position: absolute;
   background-color: var(--c-accent);
   border-radius: 50%;
-  animation: float-particle linear infinite;
-}
-@keyframes float-particle {
-  0% {
-    transform: translateY(0vh) scale(1);
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(-100vh) scale(0);
-    opacity: 0;
-  }
 }
 .name-container {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 1.2rem;
+  position: relative;
+  z-index: 2;
 }
 .name-line {
   display: flex;
@@ -262,28 +249,6 @@ video {
   font-style: italic;
   color: var(--c-text);
   line-height: 1;
-}
-.name-line > span,
-.eye-container {
-  display: inline-block;
-}
-.glitch {
-  position: relative;
-}
-.glitch:hover {
-  animation: simple-glitch-shake 0.3s ease-in-out infinite;
-}
-@keyframes simple-glitch-shake {
-  0%,
-  100% {
-    transform: skew(-2deg) scale(1.05) translateX(0);
-  }
-  25% {
-    transform: skew(-2deg) scale(1.05) translateX(-1px);
-  }
-  75% {
-    transform: skew(-2deg) scale(1.05) translateX(1px);
-  }
 }
 .profile-container {
   display: flex;
@@ -311,7 +276,6 @@ video {
   flex-shrink: 0;
   cursor: pointer;
   transform: translateY(0.05em);
-  transition: var(--transition-base);
 }
 .eye {
   width: 0.4em;
@@ -323,7 +287,6 @@ video {
   left: 50%;
   transform: translate(-50%, -50%);
   transform-origin: center;
-  transition: background-color 0.4s ease;
 }
 .tagline-container {
   margin: 1rem 0;
@@ -393,7 +356,6 @@ video {
   text-decoration: none;
   font-weight: 700;
   font-size: 0.95rem;
-  transition: all 0.3s ease;
 }
 .cta-primary {
   background: linear-gradient(135deg, var(--c-accent), var(--c-primary));
@@ -446,35 +408,67 @@ video {
   }
 }
 
-/* --- 5. Bootstrap Accordion Customization --- */
+/* --- 4. 質感膠囊面板 (手風琴樣式) --- */
 .accordion-section {
-  padding: 2rem clamp(1rem, 5vw, 4rem);
+  padding: 3rem clamp(1rem, 5vw, 4rem);
   background-color: var(--c-bg);
   color: var(--c-text);
 }
+.accordion {
+  --bs-accordion-border-width: 0;
+  --bs-accordion-border-radius: 0;
+  --bs-accordion-inner-border-radius: 0;
+  --bs-accordion-btn-focus-box-shadow: none;
+  --bs-accordion-active-color: var(--c-accent);
+  --bs-accordion-active-bg: transparent;
+}
+.accordion-item {
+  background-color: transparent;
+  margin-bottom: 1rem;
+}
 .accordion-button {
-  font-size: clamp(1.8rem, 5vw, 3.5rem) !important;
-  font-style: italic;
+  font-size: clamp(1.2rem, 3vw, 1.8rem) !important;
+  font-style: normal !important;
   color: var(--c-text) !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-  padding: 1.5rem 0 !important;
-  font-weight: 900;
+  background-color: var(--c-surface) !important;
+  box-shadow: var(--shadow-subtle) !important;
+  padding: clamp(1rem, 4vw, 1.75rem) 2rem !important;
+  font-weight: 700 !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
+  border-radius: var(--border-radius-capsule) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+.accordion-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
 .accordion-button:not(.collapsed) {
-  color: var(--c-accent) !important;
+  color: var(--pure-white) !important;
+  background-color: var(--c-accent) !important;
+  box-shadow: 0 8px 25px rgba(74, 71, 163, 0.4) !important;
+  transform: translateY(-2px);
 }
 .accordion-button::after {
   display: none !important;
 }
+.accordion-button::before {
+  counter-increment: section;
+  content: "0" counter(section) ".";
+  margin-right: 1rem;
+  font-weight: 700;
+  color: var(--c-primary);
+}
+.accordion-button:not(.collapsed)::before {
+  color: rgba(255, 255, 255, 0.8);
+}
 .accordion-icon-plus {
-  width: 2rem;
-  height: 2rem;
+  width: 1.8rem;
+  height: 1.8rem;
   position: relative;
-  transition: transform 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  flex-shrink: 0;
 }
 .accordion-icon-plus span {
   display: block;
@@ -484,8 +478,8 @@ video {
   width: 100%;
   height: 3px;
   background-color: var(--c-text);
-  transition: transform 0.4s ease, background-color 0.4s ease;
   transform-origin: center;
+  border-radius: 3px;
 }
 .accordion-icon-plus span:first-child {
   transform: translate(-50%, -50%);
@@ -494,96 +488,133 @@ video {
   transform: translate(-50%, -50%) rotate(90deg);
 }
 .accordion-button:not(.collapsed) .accordion-icon-plus {
-  transform: rotate(45deg);
+  transform: rotate(180deg);
+}
+.accordion-button:not(.collapsed) .accordion-icon-plus span:first-child {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.accordion-button:not(.collapsed) .accordion-icon-plus span:last-child {
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 .accordion-button:not(.collapsed) .accordion-icon-plus span {
-  background-color: var(--c-accent);
-}
-.accordion-item {
-  border: none;
-  border-bottom: 2px solid var(--c-border);
-}
-.accordion-item:first-of-type {
-  border-top: 2px solid var(--c-border);
+  background-color: var(--pure-white);
 }
 .accordion-body {
-  padding: 1rem 0 2rem 0;
+  padding: 2rem 2.5rem !important;
+  border-left: 3px solid var(--c-accent);
+  margin: 1rem 0 1rem 2rem;
+}
+.accordion-collapse {
+  transition: max-height 0.5s ease-in-out;
+  overflow: hidden;
+}
+.accordion-collapse:not(.show) {
+  max-height: 0;
+}
+.accordion-collapse.show {
+  max-height: 2500px;
+}
+body {
+  counter-reset: section;
 }
 
-/* --- About Section (Resume Content) Styles --- */
+/* --- 5. About Section (優化後樣式) --- */
 .highlight-intro {
   font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--c-accent);
-  line-height: 1.7;
-  margin-bottom: 2rem;
+  font-weight: 500;
+  color: var(--c-text);
+  opacity: 0.9;
+  line-height: 1.8;
+  margin-bottom: 3rem;
   padding: 1.5rem;
-  background: linear-gradient(
-    135deg,
-    rgba(248, 203, 116, 0.1),
-    rgba(74, 71, 163, 0.1)
-  );
+  background: var(--c-surface);
   border-radius: var(--border-radius-base);
   border-left: 4px solid var(--c-primary);
+  box-shadow: var(--shadow-subtle);
 }
 .section-title {
   font-weight: 900;
   font-style: italic;
   color: var(--c-text);
-  border-bottom: 2px solid var(--c-primary);
+  border-bottom: 3px solid var(--c-primary);
   display: inline-block;
   padding-bottom: 0.5rem;
-  margin-bottom: 1.5rem;
-  margin-top: 2rem;
+  margin-bottom: 2rem;
+  margin-top: 2.5rem;
 }
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
-.skill-card {
+.skill-group {
   background-color: var(--c-surface);
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
   border-radius: var(--border-radius-base);
   box-shadow: var(--shadow-subtle);
-  border-left: 4px solid var(--c-accent);
-  transition: var(--transition-base);
+  border: 1px solid var(--c-border);
 }
-.skill-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  border-left-color: var(--c-primary);
+.skill-group h5 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--c-text);
+  margin-bottom: 1.5rem;
 }
-.skill-card h5 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--c-accent);
-  margin-bottom: 0.5rem;
+.skill-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
 }
-.skill-card p {
-  margin-bottom: 0;
+.skill-capsule {
+  background-color: var(--c-primary);
+  color: var(--text-charcoal);
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--border-radius-capsule);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+@media (min-width: 992px) {
+  .about-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 .timeline {
   position: relative;
-  padding-left: 2rem;
+  padding-left: 2.5rem;
   --timeline-progress: 0;
 }
 .timeline::before {
   content: "";
   position: absolute;
-  left: 0;
+  left: 10px;
   top: 10px;
   bottom: 10px;
   width: 3px;
+  background: var(--c-border);
+  border-radius: 3px;
+}
+.timeline::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 3px;
+  height: calc(100% - 20px);
   background: linear-gradient(to bottom, var(--c-accent), var(--c-primary));
   border-radius: 3px;
   transform: scaleY(var(--timeline-progress));
   transform-origin: top;
+  transition: transform 0.5s ease-out;
 }
 .timeline-item {
   position: relative;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 .timeline-item:last-child {
   margin-bottom: 0;
@@ -591,41 +622,55 @@ video {
 .timeline-item::before {
   content: "";
   position: absolute;
-  left: -2rem;
-  top: 5px;
-  transform: translateX(-42%);
-  width: 14px;
-  height: 14px;
-  background-color: var(--c-bg);
-  border: 3px solid var(--c-accent);
+  left: -2.5rem;
+  top: 8px;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 18px;
+  background-color: var(--c-surface);
+  border: 4px solid var(--c-accent);
   border-radius: 50%;
   z-index: 1;
+  transition: all 0.3s ease;
+}
+.timeline-item:hover::before {
+  background-color: var(--c-primary);
+  border-color: var(--c-primary);
 }
 .timeline-meta {
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 .timeline-year {
-  background-color: var(--c-accent);
-  color: var(--pure-white);
+  background-color: var(--c-text);
+  opacity: 0.8;
+  color: var(--c-bg);
   padding: 0.2rem 0.8rem;
   border-radius: var(--border-radius-capsule);
   font-weight: 700;
   font-size: 0.8rem;
   display: inline-block;
-  margin-right: 0.5rem;
 }
 .timeline-company {
   font-weight: 600;
+  font-size: 1rem;
 }
 .timeline-role {
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--c-accent);
 }
 .timeline-content p {
+  margin-top: 0.5rem;
   margin-bottom: 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
 }
 
-/* --- Portfolio Section (Horizontal Scroll) --- */
+/* --- 6. Portfolio Section --- */
 .portfolio-filters {
   display: flex;
   flex-wrap: wrap;
@@ -641,7 +686,6 @@ video {
   border-radius: var(--border-radius-capsule);
   font-family: "Montserrat", sans-serif;
   font-weight: 700;
-  transition: all 0.2s ease-out;
 }
 .filter-btn:hover {
   background-color: var(--c-text);
@@ -665,7 +709,6 @@ video {
   padding: 0;
   margin: 0;
   list-style: none;
-  transition: opacity 0.4s ease;
 }
 .portfolio-capsule {
   display: block;
@@ -678,7 +721,6 @@ video {
   overflow: hidden;
   box-shadow: var(--shadow-subtle);
   background-color: var(--c-text);
-  transition: var(--transition-base);
   margin: 0 1rem;
   flex-shrink: 0;
 }
@@ -691,7 +733,6 @@ video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
 }
 .portfolio-capsule:hover .capsule-media {
   transform: scale(1.1);
@@ -704,11 +745,20 @@ video {
   padding: 2.5rem 1.5rem 2rem;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
   color: var(--pure-white);
+  text-align: center;
 }
 .capsule-title {
   font-size: 1.2rem;
   font-weight: 700;
   margin: 0;
+  line-height: 1.2;
+}
+.capsule-category {
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.8;
+  display: block;
+  margin-top: 0.25rem;
 }
 .scroller-nav {
   display: flex;
@@ -725,7 +775,6 @@ video {
   border-radius: 50%;
   font-size: 1.5rem;
   font-weight: bold;
-  transition: all 0.2s ease-out;
   display: grid;
   place-items: center;
 }
@@ -734,7 +783,7 @@ video {
   color: var(--c-bg);
 }
 
-/* --- Contact Section & Floating Labels --- */
+/* --- 7. Contact Section --- */
 .contact-intro {
   text-align: center;
   margin-bottom: 2.5rem;
@@ -760,7 +809,6 @@ video {
   background-color: var(--c-surface);
   border-radius: var(--border-radius-base);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease;
   border-left: 4px solid var(--c-accent);
 }
 .contact-method:hover {
@@ -809,7 +857,6 @@ video {
 .form-group label {
   font-weight: 700;
   color: #999;
-  transition: all 0.2s ease-in-out;
 }
 .form-group .static-label {
   color: var(--c-text);
@@ -829,9 +876,8 @@ video {
   padding: 0.8rem 1rem;
   border: 2px solid var(--c-border);
   border-radius: 10px;
-  transition: border-color 0.3s ease;
-  background-color: #fafbfc;
-  color: #333;
+  background-color: var(--c-surface);
+  color: var(--c-text);
 }
 .form-group.floating-label-group input,
 .form-group.floating-label-group textarea {
@@ -863,137 +909,12 @@ video {
   border-radius: var(--border-radius-capsule);
   font-size: 1.1rem;
   font-weight: 700;
-  transition: transform 0.3s ease;
 }
 .submit-btn:hover {
   transform: translateY(-2px);
 }
 
-/* --- Bootstrap Modal Customization (優化版) --- */
-.modal-content {
-  background-color: var(--c-surface);
-  color: var(--c-text);
-  border: none;
-  border-radius: var(--border-radius-base);
-  overflow: hidden; /* 確保子元素的圓角被裁切 */
-}
-.modal-header {
-  border-bottom: 1px solid var(--c-border);
-  padding: 1rem 1.5rem;
-}
-.modal-title {
-  font-weight: 700;
-}
-.btn-close {
-  filter: brightness(0) invert(1);
-  opacity: 0.7;
-}
-body.light-mode .btn-close {
-  filter: none;
-}
-.modal-body {
-  padding: 0; /* 移除內邊距，由子元素控制 */
-}
-.modal-body .project-detail-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* 左右分欄 */
-  gap: 0; /* 移除間距 */
-  align-items: start;
-}
-@media (max-width: 992px) {
-  .modal-body .project-detail-content {
-    grid-template-columns: 1fr; /* 在較小螢幕上變為單欄 */
-  }
-}
-.modal-body img.modal-cover-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* 移除圓角，讓它填滿容器 */
-}
-.modal-body .project-detail-info {
-  padding: 2.5rem;
-}
-.modal-body .modal-description {
-  line-height: 1.8;
-  margin-bottom: 2rem;
-}
-.modal-body .modal-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-.modal-body .modal-tag {
-  background-color: var(--c-primary);
-  color: var(--text-charcoal);
-  padding: 0.3rem 0.8rem;
-  border-radius: var(--border-radius-capsule);
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-.modal-body .cta-button {
-  background-color: var(--c-text);
-  color: var(--c-bg);
-  padding: 8px 16px;
-  border-radius: var(--border-radius-capsule);
-  display: inline-block;
-  transition: all 0.3s ease;
-}
-.modal-body .cta-button:hover {
-  background-color: var(--c-accent);
-  color: var(--pure-white);
-}@media (max-width: 992px) {
-  .modal-body .project-detail-content {
-    grid-template-columns: 1fr;
-  }
-}
-.modal-body img.modal-cover-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--border-radius-base) 0 0 var(--border-radius-base);
-}
-@media (max-width: 992px) {
-  .modal-body img.modal-cover-image {
-    border-radius: var(--border-radius-base) var(--border-radius-base) 0 0;
-  }
-}
-.modal-body .project-detail-info {
-  padding: 2rem;
-}
-.modal-body .modal-description {
-  line-height: 1.7;
-  margin-bottom: 2rem;
-}
-.modal-body .modal-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-.modal-body .modal-tag {
-  background-color: var(--c-primary);
-  color: var(--text-charcoal);
-  padding: 0.3rem 0.8rem;
-  border-radius: var(--border-radius-capsule);
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-.modal-body .cta-button {
-  background-color: var(--c-text);
-  color: var(--c-bg);
-  padding: 8px 16px;
-  border-radius: var(--border-radius-capsule);
-  display: inline-block;
-  transition: all 0.3s ease;
-}
-.modal-body .cta-button:hover {
-  background-color: var(--c-accent);
-  color: var(--pure-white);
-}
-
-/* --- Footer --- */
+/* --- 8. Footer --- */
 .main-footer {
   background-color: var(--c-bg);
   color: var(--c-text);
@@ -1005,8 +926,8 @@ body.light-mode .btn-close {
   width: 100%;
 }
 
-/* --- RWD --- */
-@media (max-width: 768px) {
+/* --- 9. RWD --- */
+@media (max-width: 992px) {
   html,
   body {
     cursor: auto;
@@ -1045,4 +966,243 @@ body.light-mode .btn-close {
     overflow: visible;
     padding: 1rem 0;
   }
+}
+
+/* --- 10. 互動式舞台藝廊 Modal 樣式 --- */
+.modal.fade .modal-dialog {
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.modal-content {
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  border: none;
+  border-radius: var(--border-radius-base);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  height: 90vh;
+  max-height: 850px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal-body-content {
+  flex-grow: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.interactive-showcase {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.showcase-stage {
+  position: relative;
+  background-color: #000;
+  flex-shrink: 0;
+  height: 55%;
+}
+.stage-media {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.stage-media.is-active {
+  opacity: 1;
+}
+.showcase-filmstrip {
+  padding: 1rem;
+  flex-shrink: 0;
+  background-color: var(--c-surface);
+  border-top: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.filmstrip-nav {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.filmstrip-nav::-webkit-scrollbar {
+  display: none;
+}
+.filmstrip-capsule {
+  width: 120px;
+  height: 75px;
+  flex-shrink: 0;
+  border-radius: var(--border-radius-capsule);
+  overflow: hidden;
+  border: 3px solid transparent;
+  transition: all 0.3s ease;
+  cursor: none;
+  opacity: 0.6;
+}
+.filmstrip-capsule.is-active {
+  border-color: var(--c-accent);
+  opacity: 1;
+  transform: scale(1.05);
+}
+.filmstrip-capsule:not(.is-active):hover {
+  opacity: 1;
+  border-color: var(--c-primary);
+}
+.filmstrip-capsule img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.showcase-info-panel {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+.info-header {
+  margin-bottom: 1.5rem;
+}
+.info-header .category-badge {
+  display: inline-block;
+  background-color: var(--c-accent);
+  color: var(--pure-white);
+  padding: 0.3rem 1rem;
+  border-radius: var(--border-radius-capsule);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.info-header .main-title {
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-top: 0.5rem;
+  color: var(--c-text);
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 992px) {
+  .info-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+.info-module .module-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--c-text);
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+.modal-description {
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+.modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+.modal-tag {
+  background-color: var(--c-primary);
+  color: var(--text-charcoal);
+  padding: 0.4rem 1rem;
+  border-radius: var(--border-radius-capsule);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.modal-cta-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+.cta-button {
+  background-color: var(--c-accent);
+  color: var(--pure-white);
+  padding: 10px 20px;
+  border-radius: var(--border-radius-capsule);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+.cta-button:hover {
+  background-color: var(--c-primary);
+  color: var(--text-charcoal);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+.cta-button:active {
+  transform: translateY(0px);
+  box-shadow: none;
+}
+.cta-button.secondary {
+  background-color: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+}
+.cta-button.secondary:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+
+/* --- RWD for Modal --- */
+@media (max-width: 992px) {
+  .modal-content {
+    height: 95vh;
+  }
+  .showcase-stage {
+    height: 40%;
+  }
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- 11. Custom GLightbox Theme --- */
+.goverlay {
+  background: rgba(26, 26, 26, 0.9);
+  backdrop-filter: blur(5px);
+}
+.custom-dark-skin .gslide-title {
+  color: var(--pure-white);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  padding: 2rem 1rem 1rem;
+  font-size: 1rem;
+  text-align: center;
+}
+.custom-dark-skin .gslide-description {
+  background: transparent;
+}
+.custom-dark-skin .gnext,
+.custom-dark-skin .gprev {
+  background: rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+.custom-dark-skin .gnext:hover,
+.custom-dark-skin .gprev:hover {
+  background: var(--c-accent);
+}
+.custom-dark-skin .gclose {
+  background: rgba(0, 0, 0, 0.4) !important;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  top: 15px;
+  right: 15px;
+}
+.custom-dark-skin .gclose:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  background: #e74c3c !important;
 }
