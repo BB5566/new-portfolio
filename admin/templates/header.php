@@ -1,7 +1,9 @@
 <?php
 // FILE: admin/templates/header.php
 // --- 後台共用頁首 ---
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <!DOCTYPE html>
 <html lang="zh-TW">

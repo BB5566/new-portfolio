@@ -1,0 +1,22 @@
+# 日誌檔案
+logs/*.log
+logs/admin_actions.log
+
+# 上傳的檔案（根據需求決定是否要版本控制）
+uploads/*
+!uploads/placeholder.svg
+!uploads/placeholder.jpg
+
+# 系統檔案
+.DS_Store
+Thumbs.db
+
+# 編輯器檔案
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 暫存檔案
+*~
+*.tmp

@@ -41,25 +41,109 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
   };
+
+  // 錯誤處理系統
+  function showErrorMessage(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-toast';
+    errorDiv.innerHTML = `
+      <div class="error-content">
+        <span class="error-icon">⚠️</span>
+        <span class="error-text">${message}</span>
+        <button class="error-close">&times;</button>
+      </div>
+    `;
+    document.body.appendChild(errorDiv);
+    
+    // 點擊關閉按鈕
+    errorDiv.querySelector('.error-close').addEventListener('click', () => {
+      errorDiv.remove();
+    });
+    
+    // 自動消失
+    setTimeout(() => {
+      if (errorDiv.parentNode) {
+        errorDiv.remove();
+      }
+    }, 5000);
+  }
+
+  // 用戶行為追蹤
+  function trackUserInteraction(action, element) {
+    console.log(`User action: ${action} on ${element}`);
+    // 可以在這裡整合 Google Analytics 或其他分析工具
+  }
+
+  // 主題管理系統
+  function initializeTheme() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('portfolio-theme');
+    
+    if (savedTheme) {
+      body.className = savedTheme;
+    } else if (prefersDark) {
+      body.className = 'dark-mode';
+    } else {
+      body.className = 'light-mode';
+    }
+  }
+
+  function toggleTheme() {
+    const newTheme = body.classList.contains('light-mode') ? 'dark-mode' : 'light-mode';
+    body.className = newTheme;
+    localStorage.setItem('portfolio-theme', newTheme);
+    if (audio) audio.playClick();
+  }
+
   function createAudioSystem() {
     if (audio) return audio;
     try {
+      // 延遲初始化 Tone.js，避免自動啟動
       audio = {
-        synth: new Tone.Synth({ volume: -12 }).toDestination(),
-        playClick: () =>
-          isAudioReady && audio.synth.triggerAttackRelease("G5", "16n"),
-        playHover: throttle(
-          () => isAudioReady && audio.synth.triggerAttackRelease("C5", "16n"),
-          100
-        ),
-        playOpen: () =>
-          isAudioReady && audio.synth.triggerAttackRelease("E4", "8n"),
-        playClose: () =>
-          isAudioReady && audio.synth.triggerAttackRelease("A3", "8n"),
+        synth: null,
+        isInitialized: false,
+        playClick: async () => {
+          if (!audio.isInitialized) await audio.initialize();
+          if (isAudioReady && audio.synth) {
+            audio.synth.triggerAttackRelease("G5", "16n");
+          }
+        },
+        playHover: throttle(async () => {
+          if (!audio.isInitialized) await audio.initialize();
+          if (isAudioReady && audio.synth) {
+            audio.synth.triggerAttackRelease("C5", "16n");
+          }
+        }, 100),
+        playOpen: async () => {
+          if (!audio.isInitialized) await audio.initialize();
+          if (isAudioReady && audio.synth) {
+            audio.synth.triggerAttackRelease("E4", "8n");
+          }
+        },
+        playClose: async () => {
+          if (!audio.isInitialized) await audio.initialize();
+          if (isAudioReady && audio.synth) {
+            audio.synth.triggerAttackRelease("A3", "8n");
+          }
+        },
+        initialize: async () => {
+          if (audio.isInitialized) return;
+          try {
+            if (Tone.context.state !== 'running') {
+              await Tone.start();
+            }
+            audio.synth = new Tone.Synth({ volume: -12 }).toDestination();
+            audio.isInitialized = true;
+            isAudioReady = true;
+          } catch (e) {
+            console.warn("Failed to initialize audio:", e);
+            isAudioReady = false;
+          }
+        }
       };
       return audio;
     } catch (e) {
-      console.warn("Tone.js is not available.");
+      console.warn("Tone.js is not available:", e);
       return null;
     }
   }
@@ -68,10 +152,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (typeof Tone === "undefined") return false;
       createAudioSystem();
-      await Tone.start();
-      isAudioReady = true;
+      // 不在這裡啟動 Tone，而是在用戶第一次互動時啟動
       return true;
     } catch (e) {
+      console.warn("Audio initialization failed:", e);
       isAudioReady = false;
       return false;
     }
@@ -92,7 +176,14 @@ document.addEventListener("DOMContentLoaded", () => {
       .fill('<div class="pixel-block"></div>')
       .join("");
     const pixelBlocks = gsap.utils.toArray(".pixel-block");
-    gsap
+    
+    // 加入載入進度條
+    const progressBar = document.createElement('div');
+    progressBar.className = 'loading-progress';
+    progressBar.innerHTML = '<div class="progress-fill"></div>';
+    document.querySelector('.loading-text-container').appendChild(progressBar);
+    
+    const tl = gsap
       .timeline()
       .to(loadingTitle, {
         duration: 1,
@@ -108,16 +199,33 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         "-=0.5"
       )
+      .to('.progress-fill', {
+        width: '100%',
+        duration: 1.5,
+        ease: 'power2.out'
+      }, "-=1")
       .to(pressStart, { duration: 0.5, opacity: 1 });
     loadingScreen.addEventListener(
       "click",
       async () => {
-        if (!isAudioReady) await initializeAudio();
-        if (isAudioReady && audio) audio.playClick();
+        // 初始化音頻系統（用戶手勢觸發）
+        if (!isAudioReady) {
+          await initializeAudio();
+          if (audio && !audio.isInitialized) {
+            await audio.initialize();
+          }
+        }
+        if (audio) await audio.playClick();
+        
         const tl = gsap.timeline({
           onComplete: () => {
             loadingScreen.style.display = "none";
             body.classList.add("loaded");
+            // 確保滾動可用
+            setTimeout(() => {
+              body.style.overflowY = 'auto';
+              document.documentElement.style.overflowY = 'auto';
+            }, 100);
             setupHeroTransition();
             setupScrollAnimations();
           },
@@ -212,7 +320,6 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
   }
-  // 找到這個函式並用下面的內容完整取代
   function setupScrollAnimations() {
     const animatedElements = gsap.utils.toArray(".skill-group, .timeline-item");
     animatedElements.forEach((el) => {
@@ -227,6 +334,44 @@ document.addEventListener("DOMContentLoaded", () => {
         duration: 0.6,
         ease: "power2.out",
       });
+    });
+
+    // 技能膠囊交錯動畫
+    gsap.fromTo('.skill-capsule', {
+      opacity: 0,
+      y: 20,
+      scale: 0.8
+    }, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'back.out(1.7)',
+      scrollTrigger: {
+        trigger: '.skills-grid',
+        start: 'top 80%',
+        toggleActions: 'play none none reverse'
+      }
+    });
+
+    // 作品集項目動畫
+    gsap.fromTo('.portfolio-capsule', {
+      opacity: 0,
+      y: 30,
+      scale: 0.9
+    }, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.8,
+      stagger: 0.15,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.portfolio-list',
+        start: 'top 85%',
+        toggleActions: 'play none none reverse'
+      }
     });
 
     const timelines = gsap.utils.toArray(".timeline");
@@ -459,20 +604,32 @@ document.addEventListener("DOMContentLoaded", () => {
         const mediaUrl = project.preview_media_url;
         let mediaElement =
           mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.endsWith(".webm"))
-            ? `<video src="${mediaUrl}" autoplay loop muted playsinline class="capsule-media"></video>`
+            ? `<video src="${mediaUrl}" autoplay loop muted playsinline class="capsule-media" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"></video><div class="missing-media" style="display:none; width:100%; height:200px; background:#f8f9fa; border:2px dashed #dee2e6; justify-content:center; align-items:center; color:#6c757d;">媒體載入失敗</div>`
             : `<img src="${
                 mediaUrl ||
-                "https://placehold.co/400x300/F8CB74/2c2c2c?text=Project"
-              }" alt="${project.title} preview" class="capsule-media">`;
+                "uploads/placeholder.svg"
+              }" alt="${project.title} preview" class="capsule-media" onerror="this.src='uploads/placeholder.svg'; this.alt='圖片載入失敗';">`;
         const capsule = document.createElement("div");
         capsule.className = "portfolio-capsule";
         capsule.dataset.projectId = project.id;
+        capsule.setAttribute('role', 'button');
+        capsule.setAttribute('tabindex', '0');
+        capsule.setAttribute('aria-label', `查看 ${project.title} 專案詳情`);
         capsule.innerHTML = `${mediaElement}<div class="capsule-overlay"><h4 class="capsule-title">${
           project.title
         }</h4><span class="capsule-category">${
           project.category_name || ""
         }</span></div>`;
         portfolioList.appendChild(capsule);
+        
+        // 為新建立的元素添加鍵盤事件監聽器
+        capsule.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            trackUserInteraction('project_view', capsule.dataset.projectId);
+            showProjectDetail(capsule.dataset.projectId);
+          }
+        });
       });
     } else {
       portfolioList.innerHTML = "<p>沒有符合篩選條件的專案。</p>";
@@ -527,10 +684,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================================
   async function loadProjectsAndSetup() {
     try {
+      // 顯示載入骨架屏
+      if (window.addLoadingSkeleton) {
+        window.addLoadingSkeleton();
+      }
+      
       const response = await fetch("api/get_projects.php");
       if (!response.ok)
         throw new Error(`API 請求失敗，狀態碼: ${response.status}`);
       allProjectsData = await response.json();
+      
+      // 延遲一點讓用戶看到載入效果
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       renderProjects(allProjectsData);
       const filterContainer = document.getElementById("portfolio-filters");
       const categories = [
@@ -557,10 +723,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   async function showProjectDetail(projectId) {
+    // 追蹤用戶行為
+    trackUserInteraction('project_detail_view', projectId);
+    
     if (audio) audio.playOpen();
     const modalContent = projectModalElement.querySelector(".modal-content");
-    modalContent.innerHTML =
-      '<div class="d-flex justify-content-center align-items-center" style="height: 100%;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    modalContent.innerHTML = `
+      <div class="modal-loading">
+        <div class="spinner"></div>
+        <div class="loading-text">載入專案資料中...</div>
+      </div>
+    `;
+    
+    // 修正 ARIA 問題
+    projectModalElement.removeAttribute('aria-hidden');
+    projectModalElement.setAttribute('aria-modal', 'true');
+    
     bsModal.show();
     try {
       const response = await fetch(
@@ -584,7 +762,7 @@ document.addEventListener("DOMContentLoaded", () => {
             (img, index) =>
               `<img src="${img.url}" alt="${img.caption}" class="stage-media ${
                 index === 0 ? "is-active" : ""
-              }" data-index="${index}">`
+              }" data-index="${index}" onerror="this.src='uploads/placeholder.svg'; this.alt='圖片載入失敗';"`
           )
           .join("");
         const filmstripHTML =
@@ -596,7 +774,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       index === 0 ? "is-active" : ""
                     }" data-index="${index}"><img src="${
                       img.url
-                    }" alt="thumbnail ${index + 1}"></div>`
+                    }" alt="thumbnail ${index + 1}" onerror="this.src='uploads/placeholder.svg';"></div>`
                 )
                 .join("")}</div></div>`
             : "";
@@ -614,17 +792,31 @@ document.addEventListener("DOMContentLoaded", () => {
             : "";
         const tagsHTML = project.tags?.length
           ? `<div class="info-module"><h5 class="module-title">技術與工具</h5><div class="modal-tags">${project.tags
-              .map((tag) => `<span class="modal-tag">${tag.name}</span>`)
+              .map((tag, index) => `<span class="modal-tag" style="animation-delay: ${0.1 + index * 0.1}s">${tag.name}</span>`)
               .join("")}</div></div>`
           : "";
-        const finalHTML = `<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 1rem; right: 1.5rem; z-index: 10;"></button><div class="modal-body-content"><div class="interactive-showcase"><div class="showcase-stage">${stageHTML}</div>${filmstripHTML}<div class="showcase-info-panel"><div class="info-header"><span class="category-badge">${
-          project.category_name || "分類"
-        }</span><h3 class="main-title">${
-          project.title
-        }</h3></div><div class="info-grid"><div class="info-module modal-description">${project.description.replace(
-          /\n/g,
-          "<br>"
-        )}</div><div class="info-module-group">${ctaHTML}${tagsHTML}</div></div></div></div></div>`;
+        const finalHTML = `
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          <div class="modal-body-content">
+            <div class="interactive-showcase">
+              <div class="showcase-stage">${stageHTML}</div>
+              ${filmstripHTML}
+              <div class="showcase-info-panel">
+                <div class="info-header">
+                  <span class="category-badge">${project.category_name || "分類"}</span>
+                  <h3 class="main-title">${project.title}</h3>
+                </div>
+                <div class="info-grid">
+                  <div class="info-module modal-description">${project.description.replace(/\n/g, "<br>")}</div>
+                  <div class="info-module-group">
+                    ${ctaHTML}
+                    ${tagsHTML}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
         modalContent.innerHTML = finalHTML;
         const stage = modalContent.querySelector(".showcase-stage");
         const thumbnails = modalContent.querySelectorAll(".filmstrip-capsule");
@@ -632,29 +824,91 @@ document.addEventListener("DOMContentLoaded", () => {
           thumb.addEventListener("click", () => {
             const activeIndex = thumb.dataset.index;
             const currentActive = stage.querySelector(".stage-media.is-active");
-            if (currentActive) currentActive.classList.remove("is-active");
-            stage
-              .querySelector(`.stage-media[data-index="${activeIndex}"]`)
-              .classList.add("is-active");
-            const currentThumb = modalContent.querySelector(
-              ".filmstrip-capsule.is-active"
-            );
+            const newActive = stage.querySelector(`.stage-media[data-index="${activeIndex}"]`);
+            
+            // 添加淡出動畫
+            if (currentActive && currentActive !== newActive) {
+              currentActive.style.opacity = '0';
+              setTimeout(() => {
+                currentActive.classList.remove("is-active");
+                newActive.classList.add("is-active");
+                newActive.style.opacity = '1';
+              }, 200);
+            } else if (!currentActive) {
+              newActive.classList.add("is-active");
+              newActive.style.opacity = '1';
+            }
+            
+            // 更新縮圖狀態
+            const currentThumb = modalContent.querySelector(".filmstrip-capsule.is-active");
             if (currentThumb) currentThumb.classList.remove("is-active");
             thumb.classList.add("is-active");
+            
+            // 播放音效
+            if (audio) audio.playClick();
           });
         });
+        // 初始化 GLightbox
         if (lightbox) lightbox.destroy();
         lightbox = GLightbox({
           selector: ".stage-media",
           skin: "custom-dark-skin",
           loop: true,
         });
+        
+        // 添加鍵盤導覽支援
+        const handleKeyNavigation = (e) => {
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            const currentActive = modalContent.querySelector(".filmstrip-capsule.is-active");
+            if (!currentActive) return;
+            
+            const thumbnails = Array.from(modalContent.querySelectorAll(".filmstrip-capsule"));
+            const currentIndex = thumbnails.indexOf(currentActive);
+            let nextIndex;
+            
+            if (e.key === 'ArrowLeft') {
+              nextIndex = currentIndex > 0 ? currentIndex - 1 : thumbnails.length - 1;
+            } else {
+              nextIndex = currentIndex < thumbnails.length - 1 ? currentIndex + 1 : 0;
+            }
+            
+            thumbnails[nextIndex].click();
+          }
+        };
+        
+        // 當 modal 顯示時綁定鍵盤事件
+        document.addEventListener('keydown', handleKeyNavigation);
+        
+        // 當 modal 隱藏時解除綁定
+        projectModalElement.addEventListener('hidden.bs.modal', () => {
+          document.removeEventListener('keydown', handleKeyNavigation);
+        }, { once: true });
       } else {
         throw new Error(project?.error || "專案資料格式錯誤");
       }
     } catch (error) {
       console.error("無法載入專案詳情:", error);
       modalContent.innerHTML = `<div class="p-4 text-center d-flex flex-column justify-content-center align-items-center" style="height:100%"><p>抱歉，無法載入專案詳情。<br>${error.message}</p><button type="button" class="btn btn-secondary mt-3" data-bs-dismiss="modal">關閉</button></div>`;
+    }
+  }
+
+  // 圖片庫導航函數
+  function navigateGallery(direction) {
+    const filmstripCapsules = document.querySelectorAll('.filmstrip-capsule');
+    const activeIndex = Array.from(filmstripCapsules).findIndex(capsule => 
+      capsule.classList.contains('is-active')
+    );
+    
+    let newIndex;
+    if (direction === 'next') {
+      newIndex = (activeIndex + 1) % filmstripCapsules.length;
+    } else {
+      newIndex = activeIndex === 0 ? filmstripCapsules.length - 1 : activeIndex - 1;
+    }
+    
+    if (filmstripCapsules[newIndex]) {
+      filmstripCapsules[newIndex].click();
     }
   }
 
@@ -686,7 +940,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (e.target.closest(".portfolio-capsule")) {
         const capsule = e.target.closest(".portfolio-capsule");
-        if (capsule) showProjectDetail(capsule.dataset.projectId);
+        if (capsule) {
+          trackUserInteraction('project_view', capsule.dataset.projectId);
+          showProjectDetail(capsule.dataset.projectId);
+        }
       }
     });
     const scrollerNav = document.querySelector(".scroller-nav");
@@ -714,19 +971,52 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // 更新主題切換事件監聽器
     eyeContainers.forEach((container) =>
       container.addEventListener("click", () => {
-        body.classList.toggle("dark-mode");
-        body.classList.toggle("light-mode");
-        if (audio) audio.playClick();
+        toggleTheme();
+        trackUserInteraction('theme_toggle', 'eye');
       })
     );
+
+    // 加入鍵盤快捷鍵
+    document.addEventListener('keydown', (e) => {
+      switch(e.key) {
+        case 'Escape':
+          if (projectModalElement.classList.contains('show')) {
+            bsModal.hide();
+          }
+          break;
+        case 'ArrowLeft':
+          if (projectModalElement.classList.contains('show')) {
+            navigateGallery('prev');
+          }
+          break;
+        case 'ArrowRight':
+          if (projectModalElement.classList.contains('show')) {
+            navigateGallery('next');
+          }
+          break;
+        case 't':
+        case 'T':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            toggleTheme();
+            trackUserInteraction('theme_toggle', 'keyboard');
+          }
+          break;
+      }
+    });
+
     projectModalElement.addEventListener("hide.bs.modal", () => {
       if (audio) audio.playClose();
       if (lightbox) {
         lightbox.destroy();
         lightbox = null;
       }
+      // 修正 ARIA 問題
+      projectModalElement.setAttribute('aria-hidden', 'true');
+      projectModalElement.removeAttribute('aria-modal');
     });
   }
 
@@ -734,14 +1024,324 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==== 8. 初始化 ====
   // ===============================================
   async function init() {
-    setupLoadingScreen();
-    generateAccordionContent();
-    setupCustomCursor();
-    setupParticles();
-    setupEyeTrackingAndBlinking();
-    setupTypingEffect();
-    setupEventListeners();
-    await loadProjectsAndSetup();
+    try {
+      // 初始化主題
+      initializeTheme();
+      
+      // 修復滾動問題
+      setupScrollFix();
+      
+      // UI/UX 增強功能
+      setupScrollProgress();
+      setupFloatingActions();
+      setupTimelineAnimation();
+      enhanceLoadingStates();
+      
+      setupLoadingScreen();
+      generateAccordionContent();
+      setupCustomCursor();
+      setupParticles();
+      setupEyeTrackingAndBlinking();
+      setupTypingEffect();
+      setupEventListeners();
+      await loadProjectsAndSetup();
+      
+      // 在專案載入完成後設置搜索
+      setupSearch();
+      
+    } catch (error) {
+      console.error('Portfolio initialization failed:', error);
+      showErrorMessage('作品集載入時發生錯誤，請重新整理頁面。');
+    }
+  }
+
+  // 修復滾動問題
+  function setupScrollFix() {
+    // 確保滾動始終可用
+    let scrollTimer;
+    
+    // 強制滾動修復函數
+    const forceScrollFix = () => {
+      if (body.classList.contains('loaded')) {
+        body.style.overflowY = 'auto';
+        document.documentElement.style.overflowY = 'auto';
+        // 移除可能阻止滾動的樣式
+        body.style.height = 'auto';
+        body.style.minHeight = '100vh';
+      }
+    };
+
+    // 監聽滾動事件，確保body保持loaded狀態
+    window.addEventListener('scroll', () => {
+      if (!body.classList.contains('loaded')) {
+        body.classList.add('loaded');
+      }
+      
+      // 清除之前的計時器
+      clearTimeout(scrollTimer);
+      
+      // 設置新的計時器，確保滾動後body狀態正確
+      scrollTimer = setTimeout(() => {
+        forceScrollFix();
+      }, 100);
+    }, { passive: true });
+
+    // 強制啟用滾動
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(forceScrollFix, 1000);
+    });
+
+    // 監聽wheel事件，確保滾動響應
+    document.addEventListener('wheel', (e) => {
+      if (body.classList.contains('loaded')) {
+        forceScrollFix();
+      }
+    }, { passive: true });
+    
+    // 觸摸滾動支援（移動設備）
+    document.addEventListener('touchmove', () => {
+      if (body.classList.contains('loaded')) {
+        forceScrollFix();
+      }
+    }, { passive: true });
+    
+    // 鍵盤滾動支援
+    document.addEventListener('keydown', (e) => {
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', 'Space'].includes(e.key)) {
+        if (body.classList.contains('loaded') && !e.target.closest('.modal')) {
+          forceScrollFix();
+        }
+      }
+    });
+
+    // 窗口大小改變時修復滾動
+    window.addEventListener('resize', forceScrollFix);
+    
+    // 定期檢查滾動狀態（作為最後的保險）
+    setInterval(() => {
+      if (body.classList.contains('loaded') && window.innerHeight > 0) {
+        if (body.style.overflowY === 'hidden' || body.style.overflowY === '') {
+          forceScrollFix();
+        }
+      }
+    }, 2000);
+  }
+
+  // 滾動進度條
+  function setupScrollProgress() {
+    const progressBar = document.createElement('div');
+    progressBar.className = 'scroll-progress';
+    progressBar.innerHTML = '<div class="scroll-progress-bar"></div>';
+    document.body.appendChild(progressBar);
+
+    const progressFill = progressBar.querySelector('.scroll-progress-bar');
+
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / scrollHeight) * 100;
+      
+      progressFill.style.width = `${Math.min(progress, 100)}%`;
+    });
+  }
+
+  // 懸浮操作按鈕
+  function setupFloatingActions() {
+    const floatingActions = document.createElement('div');
+    floatingActions.className = 'floating-actions';
+    floatingActions.innerHTML = `
+      <button class="floating-btn pulse" id="backToTop" title="回到頂部">
+        ↑
+      </button>
+      <button class="floating-btn" id="toggleTheme" title="切換主題">
+        🌙
+      </button>
+    `;
+    document.body.appendChild(floatingActions);
+
+    // 回到頂部功能
+    document.getElementById('backToTop').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      trackUserInteraction('back_to_top', 'floating_button');
+      if (audio) audio.playClick();
+    });
+
+    // 主題切換
+    document.getElementById('toggleTheme').addEventListener('click', () => {
+      toggleTheme();
+      trackUserInteraction('theme_toggle', 'floating_button');
+      
+      // 更新按鈕圖示
+      const themeBtn = document.getElementById('toggleTheme');
+      themeBtn.textContent = body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    });
+
+    // 滾動時顯示/隱藏回到頂部按鈕
+    window.addEventListener('scroll', () => {
+      const backToTopBtn = document.getElementById('backToTop');
+      if (window.pageYOffset > 300) {
+        backToTopBtn.style.opacity = '1';
+        backToTopBtn.style.visibility = 'visible';
+      } else {
+        backToTopBtn.style.opacity = '0';
+        backToTopBtn.style.visibility = 'hidden';
+      }
+    });
+  }
+
+  // 成功通知
+  function showSuccessMessage(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-toast';
+    successDiv.innerHTML = `
+      <div class="error-content">
+        <span class="error-icon">✅</span>
+        <span class="error-text">${message}</span>
+        <button class="error-close">&times;</button>
+      </div>
+    `;
+    document.body.appendChild(successDiv);
+
+    // 關閉按鈕
+    successDiv.querySelector('.error-close').addEventListener('click', () => {
+      successDiv.remove();
+    });
+
+    // 自動消失
+    setTimeout(() => {
+      if (successDiv.parentNode) {
+        successDiv.remove();
+      }
+    }, 4000);
+  }
+
+  // 時間軸動畫
+  function setupTimelineAnimation() {
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    
+    // 檢查是否在視口中
+    const checkVisibility = (item) => {
+      const rect = item.getBoundingClientRect();
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      return rect.top < windowHeight * 0.8;
+    };
+    
+    // 初始化時立即檢查可見項目
+    timelineItems.forEach(item => {
+      if (checkVisibility(item)) {
+        item.classList.add('animate-in');
+      } else {
+        item.classList.add('fade-in');
+      }
+    });
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('fade-in');
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, { 
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    timelineItems.forEach(item => {
+      observer.observe(item);
+    });
+  }
+
+  // 搜索功能
+  function setupSearch() {
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'search-container';
+    searchContainer.innerHTML = `
+      <div style="position: relative;">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="搜索專案..." id="projectSearch">
+      </div>
+    `;
+
+    const portfolioSection = document.querySelector('.portfolio-filters');
+    if (portfolioSection) {
+      portfolioSection.parentNode.insertBefore(searchContainer, portfolioSection);
+    }
+
+    // 搜索功能
+    let searchTimeout;
+    document.getElementById('projectSearch').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      
+      // 防抖處理
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const projects = document.querySelectorAll('.portfolio-capsule');
+        let visibleCount = 0;
+        
+        projects.forEach(project => {
+          const title = project.querySelector('.capsule-title')?.textContent.toLowerCase() || '';
+          const category = project.querySelector('.capsule-category')?.textContent.toLowerCase() || '';
+          
+          if (title.includes(searchTerm) || category.includes(searchTerm)) {
+            project.style.display = 'block';
+            project.style.opacity = '1';
+            visibleCount++;
+          } else {
+            project.style.display = 'none';
+            project.style.opacity = '0';
+          }
+        });
+
+        // 顯示空狀態
+        const portfolioList = document.querySelector('.portfolio-list');
+        let emptyState = document.querySelector('.empty-state');
+        
+        if (visibleCount === 0 && searchTerm.length > 0) {
+          if (!emptyState) {
+            emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+              <div class="empty-state-icon">🔍</div>
+              <h3>沒有找到相關專案</h3>
+              <p>請嘗試使用其他關鍵字搜索</p>
+            `;
+            portfolioList.parentNode.appendChild(emptyState);
+          }
+          emptyState.style.display = 'block';
+        } else if (emptyState) {
+          emptyState.style.display = 'none';
+        }
+
+        trackUserInteraction('search', searchTerm);
+      }, 300);
+    });
+  }
+
+  // 改善的載入動畫
+  function enhanceLoadingStates() {
+    // 為專案載入添加骨架屏
+    const portfolioList = document.querySelector('.portfolio-list');
+    if (portfolioList) {
+      const addLoadingSkeleton = () => {
+        portfolioList.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+          const skeleton = document.createElement('div');
+          skeleton.className = 'portfolio-capsule loading-skeleton';
+          skeleton.innerHTML = `
+            <div style="width: 100%; height: 200px; background: #f0f0f0;"></div>
+            <div style="padding: 1rem;">
+              <div style="height: 20px; background: #e0e0e0; margin-bottom: 10px; border-radius: 4px;"></div>
+              <div style="height: 16px; background: #e0e0e0; border-radius: 4px; width: 60%;"></div>
+            </div>
+          `;
+          portfolioList.appendChild(skeleton);
+        }
+      };
+
+      // 在專案載入時顯示骨架屏
+      window.addLoadingSkeleton = addLoadingSkeleton;
+    }
   }
 
   init();

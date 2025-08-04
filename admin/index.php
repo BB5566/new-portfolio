@@ -22,8 +22,8 @@ include 'templates/header.php';
     </thead>
     <tbody>
         <?php
-        // ▼▼▼ 在 SQL 查詢中，多選一個 p.github_link 欄位 ▼▼▼
-        $sql = "SELECT p.id, p.title, p.sort_order, p.is_published, p.cover_image_url, p.github_link, c.name as category_name 
+        // 查詢所有必要欄位，包括預覽媒體
+        $sql = "SELECT p.id, p.title, p.sort_order, p.is_published, p.cover_image_url, p.preview_media_url, p.github_link, c.name as category_name 
                 FROM projects p
                 LEFT JOIN categories c ON p.category_id = c.id
                 ORDER BY p.sort_order ASC, p.id DESC";
@@ -36,9 +36,77 @@ include 'templates/header.php';
                 <tr>
                     <td><?php echo htmlspecialchars($row['sort_order']); ?></td>
                     <td>
-                        <?php if (!empty($row['cover_image_url'])): ?>
-                            <img src="../<?php echo htmlspecialchars($row['cover_image_url']); ?>" alt="<?php echo htmlspecialchars($row['title']); ?>" class="thumbnail-image">
+                        <?php 
+                        // 檢查兩個圖片欄位的檔案狀態
+                        $previewPath = '../' . $row['preview_media_url'];
+                        $coverPath = '../' . $row['cover_image_url'];
+                        $previewExists = !empty($row['preview_media_url']) && file_exists($previewPath);
+                        $coverExists = !empty($row['cover_image_url']) && file_exists($coverPath);
+                        
+                        // 決定要顯示的媒體（優先顯示存在的預覽媒體）
+                        $displayMedia = '';
+                        $displayType = '';
+                        $displayExists = false;
+                        
+                        if ($previewExists) {
+                            $displayMedia = $row['preview_media_url'];
+                            $displayType = 'preview';
+                            $displayExists = true;
+                        } elseif ($coverExists) {
+                            $displayMedia = $row['cover_image_url'];
+                            $displayType = 'cover';
+                            $displayExists = true;
+                        }
+                        
+                        if ($displayExists && !empty($displayMedia)):
+                            // 檢查檔案類型
+                            $extension = strtolower(pathinfo($displayMedia, PATHINFO_EXTENSION));
+                            $isVideo = in_array($extension, ['mp4', 'webm', 'mov']);
+                        ?>
+                            <!-- 顯示可用的媒體 -->
+                            <?php if ($isVideo): ?>
+                                <video class="thumbnail-image" controls muted style="max-width: 100px; max-height: 60px;">
+                                    <source src="../<?php echo htmlspecialchars($displayMedia); ?>" type="video/mp4">
+                                    無法播放影片
+                                </video>
+                            <?php else: ?>
+                                <img src="../<?php echo htmlspecialchars($displayMedia); ?>" 
+                                     alt="<?php echo htmlspecialchars($row['title']); ?>" 
+                                     class="thumbnail-image" 
+                                     style="max-width: 100px; max-height: 60px; object-fit: cover;">
+                            <?php endif; ?>
+                            
+                            <!-- 狀態指示 -->
+                            <div class="image-status">
+                                <?php if ($previewExists): ?>
+                                    <span class="image-status-success">✓ 使用預覽媒體</span>
+                                <?php else: ?>
+                                    <span class="image-status-warning">⚠ 使用封面圖片</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <!-- 沒有可用的媒體 -->
+                            <div class="text-center">
+                                <div class="missing-image-placeholder">
+                                    <span class="missing-image-icon">⚠</span>
+                                </div>
+                                <small class="image-status-error">圖片遺失</small>
+                            </div>
                         <?php endif; ?>
+                        
+                        <!-- 詳細檔案狀態 -->
+                        <div class="file-status-detail">
+                            <?php if (!empty($row['preview_media_url'])): ?>
+                                <div class="<?php echo $previewExists ? 'image-status-success' : 'image-status-error'; ?>">
+                                    <?php echo $previewExists ? '✓' : '✗'; ?> 預覽: <?php echo basename($row['preview_media_url']); ?>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (!empty($row['cover_image_url'])): ?>
+                                <div class="<?php echo $coverExists ? 'image-status-success' : 'image-status-error'; ?>">
+                                    <?php echo $coverExists ? '✓' : '✗'; ?> 封面: <?php echo basename($row['cover_image_url']); ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </td>
                     <td><?php echo htmlspecialchars($row['category_name']); ?></td>
                     <td>

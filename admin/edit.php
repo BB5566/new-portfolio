@@ -83,7 +83,26 @@ include 'templates/header.php';
     <div class="form-group">
         <label for="cover_image">封面圖片 (用於彈出視窗)</label>
         <?php if (!empty($project['cover_image_url'])): ?>
-            <img src="../<?php echo htmlspecialchars($project['cover_image_url']); ?>" alt="Current Cover" class="preview-image">
+            <?php
+            $coverPath = '../' . $project['cover_image_url'];
+            $coverExists = file_exists($coverPath);
+            ?>
+            <div class="current-image-status">
+                <?php if ($coverExists): ?>
+                    <img src="../<?php echo htmlspecialchars($project['cover_image_url']); ?>" alt="Current Cover" class="preview-image">
+                    <div class="file-status file-status-success">
+                        <span>✓ 封面圖片：<?php echo basename($project['cover_image_url']); ?></span>
+                    </div>
+                <?php else: ?>
+                    <div class="missing-image-placeholder">
+                        <span class="missing-image-icon">⚠</span>
+                        <p>封面圖片遺失</p>
+                    </div>
+                    <div class="file-status file-status-error">
+                        <span>✗ 遺失檔案：<?php echo basename($project['cover_image_url']); ?></span>
+                    </div>
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
         <input type="file" id="cover_image" name="cover_image" <?php echo empty($project['id']) ? 'required' : ''; ?>>
         <input type="hidden" name="old_cover_image" value="<?php echo htmlspecialchars($project['cover_image_url']); ?>">
@@ -93,11 +112,30 @@ include 'templates/header.php';
     <div class="form-group">
         <label for="preview_media">預覽媒體 (用於作品集列表的 GIF 或 MP4)</label>
         <?php if (!empty($project['preview_media_url'])): ?>
-            <div class="preview-media-container">
-                <?php if (str_ends_with($project['preview_media_url'], '.mp4') || str_ends_with($project['preview_media_url'], '.webm')): ?>
-                    <video src="../<?php echo htmlspecialchars($project['preview_media_url']); ?>" autoplay loop muted class="preview-image"></video>
+            <?php
+            $previewPath = '../' . $project['preview_media_url'];
+            $previewExists = file_exists($previewPath);
+            ?>
+            <div class="current-image-status">
+                <?php if ($previewExists): ?>
+                    <div class="preview-media-container">
+                        <?php if (str_ends_with($project['preview_media_url'], '.mp4') || str_ends_with($project['preview_media_url'], '.webm')): ?>
+                            <video src="../<?php echo htmlspecialchars($project['preview_media_url']); ?>" autoplay loop muted class="preview-image"></video>
+                        <?php else: ?>
+                            <img src="../<?php echo htmlspecialchars($project['preview_media_url']); ?>" alt="Current Preview" class="preview-image">
+                        <?php endif; ?>
+                    </div>
+                    <div class="file-status file-status-success">
+                        <span>✓ 預覽媒體：<?php echo basename($project['preview_media_url']); ?></span>
+                    </div>
                 <?php else: ?>
-                    <img src="../<?php echo htmlspecialchars($project['preview_media_url']); ?>" alt="Current Preview" class="preview-image">
+                    <div class="missing-image-placeholder">
+                        <span class="missing-image-icon">⚠</span>
+                        <p>預覽媒體遺失</p>
+                    </div>
+                    <div class="file-status file-status-error">
+                        <span>✗ 遺失檔案：<?php echo basename($project['preview_media_url']); ?></span>
+                    </div>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -127,8 +165,24 @@ include 'templates/header.php';
                         <p>目前沒有圖庫圖片。</p>
                     <?php else: ?>
                         <?php foreach ($gallery_images as $img): ?>
+                            <?php
+                            $galleryPath = '../' . $img['image_url'];
+                            $galleryExists = file_exists($galleryPath);
+                            ?>
                             <div class="existing-gallery-item">
-                                <img src="../<?php echo htmlspecialchars($img['image_url']); ?>" class="preview-image-small">
+                                <?php if ($galleryExists): ?>
+                                    <img src="../<?php echo htmlspecialchars($img['image_url']); ?>" class="preview-image-small">
+                                    <div class="file-status file-status-success" style="font-size: 0.7rem;">
+                                        <span>✓ <?php echo basename($img['image_url']); ?></span>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="missing-image-placeholder" style="width: 100px; height: 60px; margin-bottom: 5px;">
+                                        <span class="missing-image-icon">⚠</span>
+                                    </div>
+                                    <div class="file-status file-status-error" style="font-size: 0.7rem;">
+                                        <span>✗ 遺失：<?php echo basename($img['image_url']); ?></span>
+                                    </div>
+                                <?php endif; ?>
                                 <input type="text" name="captions[<?php echo $img['id']; ?>]" value="<?php echo htmlspecialchars($img['caption']); ?>" placeholder="圖片說明">
                                 <input type="number" name="sort_orders[<?php echo $img['id']; ?>]" value="<?php echo htmlspecialchars($img['sort_order']); ?>" class="sort-order-input" title="排序">
                                 <a href="actions.php?action=delete_gallery_image&id=<?php echo $img['id']; ?>&project_id=<?php echo $project['id']; ?>" class="btn btn-delete btn-small" onclick="return confirm('確定刪除這張圖片嗎？');">刪除</a>

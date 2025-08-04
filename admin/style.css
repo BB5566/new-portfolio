@@ -215,3 +215,98 @@ th {
     padding: 0.2rem 0.5rem;
     font-size: 0.8rem;
 }
+
+/* 圖片狀態顯示樣式 */
+.image-status {
+    font-size: 0.7rem;
+    margin-top: 5px;
+}
+
+.image-status-success {
+    color: #28a745;
+}
+
+.image-status-warning {
+    color: #ffc107;
+}
+
+.image-status-error {
+    color: #dc3545;
+}
+
+.file-status-detail {
+    font-size: 0.65rem;
+    margin-top: 8px;
+    padding-top: 5px;
+    border-top: 1px solid #eee;
+}
+
+.missing-image-placeholder {
+    width: 100px;
+    height: 60px;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 4px;
+}
+
+.missing-image-icon {
+    color: #dc3545;
+    font-size: 1.2rem;
+}
+
+/* 檔案狀態樣式 */
+.current-image-status {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.file-status {
+    margin-top: 5px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.file-status-success {
+    color: #28a745;
+}
+
+.file-status-error {
+    color: #dc3545;
+}
+
+.file-status-warning {
+    color: #ffc107;
+}
+
+/* Gallery 項目樣式調整 */
+.existing-gallery-item {
+    position: relative;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.existing-gallery-item .missing-image-placeholder {
+    margin: 0 auto 5px auto;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .file-status-detail {
+        font-size: 0.6rem;
+    }
+    
+    .missing-image-placeholder {
+        width: 80px;
+        height: 50px;
+    }
+}

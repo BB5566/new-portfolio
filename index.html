@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BOB TSOU | Web & UI/UX Designer</title>
 
+    <!-- 字體預載入優化 -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap"></noscript>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
 
     <link
@@ -17,10 +21,6 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap"
-      rel="stylesheet"
-    />
     <link
       rel="icon"
       href="https://www.google.com/s2/favicons?domain=pixelfed.org"
@@ -46,32 +46,32 @@
         
         <div class="name-container">
           <div class="name-line">
-            <span>B</span>
-            <div class="eye-container">
+            <span class="ultra-bold">B</span>
+            <div class="eye-container" role="button" tabindex="0" aria-label="切換主題">
               <div class="eye"></div>
             </div>
-            <span>B</span>
+            <span class="ultra-bold">B</span>
           </div>
           <div class="name-line">
-            <span>T</span>
-            <span>S</span>
-            <div class="eye-container">
+            <span class="ultra-bold">T</span>
+            <span class="ultra-bold">S</span>
+            <div class="eye-container" role="button" tabindex="0" aria-label="切換主題">
               <div class="eye"></div>
             </div>
-            <span>U</span>
+            <span class="ultra-bold">U</span>
           </div>
         </div>
 
         <div class="tagline-container">
           <div class="tagline-capsule">
-            <div class="typing-text" id="typing-text"></div>
-            <span class="typing-cursor">|</span>
+            <div class="typing-text" id="typing-text" aria-live="polite"></div>
+            <span class="typing-cursor" aria-hidden="true">|</span>
           </div>
-          <div class="tagline-skills">
-            <span class="skill-badge">UI/UX</span>
-            <span class="skill-badge">Front-End</span>
-            <span class="skill-badge">Back-End</span>
-            <span class="skill-badge">Design</span>
+          <div class="tagline-skills" role="list" aria-label="技能標籤">
+            <span class="skill-badge" role="listitem">UI/UX</span>
+            <span class="skill-badge" role="listitem">Front-End</span>
+            <span class="skill-badge" role="listitem">Back-End</span>
+            <span class="skill-badge" role="listitem">Design</span>
           </div>
         </div>
 
@@ -82,14 +82,14 @@
             class="profile-photo"
           />
           <div class="profile-actions">
-            <a href="resume-bob-tsou.pdf" class="cta-secondary" download>
+            <a href="resume-bob-tsou.pdf" class="cta-secondary" download aria-label="下載履歷 PDF 檔案">
               <span class="cta-icon">📄</span>
               <span class="cta-text">下載履歷</span>
             </a>
           </div>
         </div>
 
-        <div class="scroll-down-indicator">
+        <div class="scroll-down-indicator" aria-label="向下滾動查看更多內容">
           <div class="mouse"></div>
         </div>
 

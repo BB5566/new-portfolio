@@ -6,13 +6,15 @@
 include 'db_connect.php';
 
 // --- 安全性：接收並驗證 ID ---
-$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$id = isset($_GET['id']) ? sanitizeInput($_GET['id']) : '';
 
-if ($id <= 0) {
+// 驗證 ID 是否為正整數
+if (!is_numeric($id) || intval($id) <= 0) {
     http_response_code(400); // Bad Request
-    // 使用我們在 db_connect.php 中定義的輔助函式
     send_json(['error' => '無效的專案 ID']);
 }
+
+$id = intval($id);
 
 try {
     // --- 1. 獲取專案主要資訊 ---
