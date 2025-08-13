@@ -349,7 +349,7 @@ video {
   padding: 0.8rem 2rem;
   border-radius: var(--border-radius-capsule);
   white-space: nowrap;
-  min-width: 320px;
+  min-width: 370px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
