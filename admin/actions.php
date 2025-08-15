@@ -36,8 +36,28 @@ function validate_file($file, $allowed_types, $max_size = 10485760) { // 10MB de
     return null; // 通過驗證
 }
 
+// 產生安全的檔名前綴（保留中英文字、數字、底線與連字號；空白轉為連字號）
+function make_safe_filename_base($name, $fallback = 'media') {
+    $base = trim((string)$name);
+    // 將各種空白轉為單一連字號
+    $base = preg_replace('/[\s\t\r\n]+/u', '-', $base);
+    // 移除非字母/數字/底線/連字號的字元（保留各語系字母）
+    $base = preg_replace('/[^\p{L}\p{N}_-]+/u', '', $base);
+    $base = trim($base, '-_');
+    if ($base === '' || $base === null) {
+        $base = $fallback;
+    }
+    // 避免過長
+    if (mb_strlen($base, 'UTF-8') > 80) {
+        $base = mb_substr($base, 0, 80, 'UTF-8');
+    }
+    // 加上日期與隨機碼確保唯一
+    $rand = substr(bin2hex(random_bytes(4)), 0, 8);
+    return $base . '_' . date('Ymd') . '_' . $rand;
+}
+
 // OPTIMIZED: handle_upload function with better error handling and security
-function handle_upload($file_input_name, $old_file_path = '', $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], $max_size = 10485760)
+function handle_upload($file_input_name, $old_file_path = '', $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], $max_size = 10485760, $name_hint = 'media')
 {
     if (!isset($_FILES[$file_input_name]) || $_FILES[$file_input_name]['error'] === UPLOAD_ERR_NO_FILE) {
         return $old_file_path; // 沒有新檔案，返回舊路徑
@@ -62,10 +82,16 @@ function handle_upload($file_input_name, $old_file_path = '', $allowed_types = [
         }
     }
     
-    // 生成安全的檔案名
+    // 生成安全的檔案名（以專案標題或提示為前綴）
     $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $new_filename = uniqid('media_' . date('Ymd_'), true) . '.' . $file_extension;
+    $base = make_safe_filename_base($name_hint ?: 'media', 'media');
+    $new_filename = $base . '.' . $file_extension;
     $destination = $upload_dir . $new_filename;
+    // 若檔名碰撞，附加 uniqid 後綴
+    if (file_exists($destination)) {
+        $new_filename = $base . '_' . substr(uniqid('', true), -6) . '.' . $file_extension;
+        $destination = $upload_dir . $new_filename;
+    }
     
     if (move_uploaded_file($file['tmp_name'], $destination)) {
         // 成功上傳後，刪除舊檔案
@@ -88,21 +114,49 @@ function handle_upload($file_input_name, $old_file_path = '', $allowed_types = [
 function update_tags($pdo, $project_id, $tags)
 {
     try {
-        // 刪除舊的標籤關聯
-        $stmt = $pdo->prepare("DELETE FROM project_tag_map WHERE project_id = ?");
-        $stmt->execute([$project_id]);
-        
-        // 新增新的標籤關聯
-        if (!empty($tags) && is_array($tags)) {
-            $sql = "INSERT INTO project_tag_map (project_id, tag_id) VALUES (?, ?)";
-            $stmt = $pdo->prepare($sql);
-            foreach ($tags as $tag_id) {
-                if (is_numeric($tag_id) && $tag_id > 0) {
-                    $stmt->execute([$project_id, intval($tag_id)]);
-                }
-            }
-            log_action('tags_updated', "Project ID: $project_id, Tags: " . implode(',', $tags));
+        // 標準化輸入：允許逗號分隔字串或陣列，並轉為唯一的正整數陣列
+        if (is_string($tags)) {
+            $tags = array_filter(array_map('trim', explode(',', $tags)), fn($v) => $v !== '');
         }
+        $tags = is_array($tags) ? $tags : [];
+        $tagIds = [];
+        foreach ($tags as $t) {
+            if (is_numeric($t)) {
+                $iv = intval($t);
+                if ($iv > 0) $tagIds[$iv] = true; // 用鍵去重
+            }
+        }
+        $tagIds = array_keys($tagIds);
+
+        // 若有提供 tag id，先過濾出資料庫中真實存在的 tag，避免外鍵錯誤
+        $validTagIds = [];
+        if (!empty($tagIds)) {
+            // 動態組裝 IN 條件
+            $placeholders = implode(',', array_fill(0, count($tagIds), '?'));
+            $stmt = $pdo->prepare("SELECT id FROM tags WHERE id IN ($placeholders)");
+            $stmt->execute($tagIds);
+            $validTagIds = $stmt->fetchAll(PDO::FETCH_COLUMN, 0) ?: [];
+            // 轉為 int 並去重
+            $validTagIds = array_values(array_unique(array_map('intval', $validTagIds)));
+        }
+
+        // 先刪除舊的標籤關聯
+        $stmtDel = $pdo->prepare("DELETE FROM project_tag_map WHERE project_id = ?");
+        $stmtDel->execute([$project_id]);
+
+        // 沒有有效標籤則視為清空成功
+        if (empty($validTagIds)) {
+            log_action('tags_cleared', "Project ID: $project_id");
+            return true;
+        }
+
+        // 新增有效的標籤關聯
+        $sql = "INSERT INTO project_tag_map (project_id, tag_id) VALUES (?, ?)";
+        $stmtIns = $pdo->prepare($sql);
+        foreach ($validTagIds as $tag_id) {
+            $stmtIns->execute([$project_id, $tag_id]);
+        }
+        log_action('tags_updated', "Project ID: $project_id, Tags: " . implode(',', $validTagIds));
         return true;
     } catch (Exception $e) {
         log_action('tags_update_failed', "Project ID: $project_id, Error: " . $e->getMessage());
@@ -122,6 +176,16 @@ function handle_gallery_uploads($pdo, $project_id)
     $uploaded_count = 0;
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     $max_size = 5242880; // 5MB for gallery images
+    // 以專案標題建立檔名前綴
+    try {
+        $stmtTitle = $pdo->prepare("SELECT title FROM projects WHERE id = ?");
+        $stmtTitle->execute([$project_id]);
+        $row = $stmtTitle->fetch();
+        $title_for_name = $row && !empty($row['title']) ? $row['title'] : 'gallery';
+    } catch (Exception $e) {
+        $title_for_name = 'gallery';
+    }
+    $gallery_base = make_safe_filename_base($title_for_name, 'gallery');
     
     foreach ($files['name'] as $key => $name) {
         if ($files['error'][$key] === UPLOAD_ERR_OK) {
@@ -140,8 +204,14 @@ function handle_gallery_uploads($pdo, $project_id)
             }
             
             $file_extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-            $new_filename = uniqid('gallery_' . date('Ymd_'), true) . '.' . $file_extension;
+            // 以「標題_日期_隨機」為基底，再加上 gallery 標記
+            $base = $gallery_base . '_gallery';
+            $new_filename = $base . '.' . $file_extension;
             $destination = $upload_dir . $new_filename;
+            if (file_exists($destination)) {
+                $new_filename = $base . '_' . substr(uniqid('', true), -6) . '.' . $file_extension;
+                $destination = $upload_dir . $new_filename;
+            }
             
             if (move_uploaded_file($file_data['tmp_name'], $destination)) {
                 $image_path = 'uploads/' . $new_filename;
@@ -275,9 +345,13 @@ function validate_project_data($action) {
         throw new Exception("專案描述不能超過 5000 字元");
     }
     
-    // 新增專案時必須有封面圖片
-    if ($action === 'create' && (!isset($_FILES['cover_image']) || $_FILES['cover_image']['error'] === UPLOAD_ERR_NO_FILE)) {
-        throw new Exception("新增專案時必須上傳封面圖片");
+    // 新增專案時必須有主媒體（image 或 video 任一）
+    if ($action === 'create') {
+        $hasCover = isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] !== UPLOAD_ERR_NO_FILE;
+        $hasHero = isset($_FILES['hero_media']) && $_FILES['hero_media']['error'] !== UPLOAD_ERR_NO_FILE;
+        if (!$hasCover && !$hasHero) {
+            throw new Exception("新增專案時必須上傳主媒體（圖片或影片）");
+        }
     }
     
     return true;
@@ -286,32 +360,44 @@ function validate_project_data($action) {
 // --- OPTIMIZED: Main form actions with enhanced validation and error handling ---
 $pdo->beginTransaction();
 try {
-    // 驗證基本資料
-    validate_project_data($action);
-    
     switch ($action) {
         case 'create':
+            // 驗證基本資料（僅限新增）
+            validate_project_data('create');
             log_action('create_project_start', "Title: " . $_POST['title']);
+            // 先清理輸入以便檔名命名
+            $title = trim($_POST['title']);
+            $description = trim($_POST['description']);
+            $project_link = !empty($_POST['project_link']) ? trim($_POST['project_link']) : null;
+            $github_link = !empty($_POST['github_link']) ? trim($_POST['github_link']) : null;
             
-            // 處理檔案上傳
-            $cover_image_path = handle_upload('cover_image', '', ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], 10485760);
-            if ($cover_image_path === false) {
-                throw new Exception($_SESSION['message'] ?? '封面圖片上傳失敗');
-            }
-
-            $preview_media_path = handle_upload('preview_media', '', ['image/gif', 'video/mp4', 'video/webm'], 20971520); // 20MB for videos
-            if ($preview_media_path === false) {
-                throw new Exception($_SESSION['message'] ?? '預覽媒體上傳失敗');
+            // 處理主媒體上傳（整合 cover/preview）
+            $cover_image_path = $_POST['old_cover_image'] ?? '';
+            $preview_media_path = $_POST['old_preview_media'] ?? '';
+            $hasHero = isset($_FILES['hero_media']) && $_FILES['hero_media']['error'] !== UPLOAD_ERR_NO_FILE;
+            if ($hasHero) {
+                $type = $_FILES['hero_media']['type'] ?? '';
+                if (strpos($type, 'video/') === 0) {
+                    // 上傳為影片 -> 當成列表預覽
+                    $preview_media_path = handle_upload('hero_media', $preview_media_path, ['video/mp4', 'video/webm'], 20971520, $title);
+                    if ($preview_media_path === false) throw new Exception($_SESSION['message'] ?? '主媒體上傳失敗');
+                } else {
+                    // 上傳為圖片/GIF -> 當成封面（GIF 也可）
+                    $cover_image_path = handle_upload('hero_media', $cover_image_path, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], 10485760, $title);
+                    if ($cover_image_path === false) throw new Exception($_SESSION['message'] ?? '主媒體上傳失敗');
+                }
+            } else {
+                // fallback：維持舊欄位（相容）
+                $cover_image_path = handle_upload('cover_image', $cover_image_path, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], 10485760, $title);
+                if ($cover_image_path === false) throw new Exception($_SESSION['message'] ?? '封面圖片上傳失敗');
+                $preview_media_path = handle_upload('preview_media', $preview_media_path, ['image/gif', 'video/mp4', 'video/webm'], 20971520, $title);
+                if ($preview_media_path === false) throw new Exception($_SESSION['message'] ?? '預覽媒體上傳失敗');
             }
 
             $is_published = isset($_POST['is_published']) ? 1 : 0;
             $sort_order = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : 0;
             
-            // 清理輸入資料
-            $title = trim($_POST['title']);
-            $description = trim($_POST['description']);
-            $project_link = !empty($_POST['project_link']) ? trim($_POST['project_link']) : null;
-            $github_link = !empty($_POST['github_link']) ? trim($_POST['github_link']) : null;
+            // 清理輸入資料（已於上方取得 $title 等）
             
             // 插入專案資料
             $sql = "INSERT INTO projects (category_id, title, description, cover_image_url, preview_media_url, project_link, github_link, sort_order, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
@@ -339,6 +425,18 @@ try {
             // 處理圖庫上傳
             $gallery_count = handle_gallery_uploads($pdo, $project_id);
 
+            // 若尚無封面且有圖庫，使用第一張圖庫圖片作為封面
+            if (empty($cover_image_path) && $gallery_count > 0) {
+                $stmtFirst = $pdo->prepare("SELECT image_url FROM project_galleries WHERE project_id = ? ORDER BY sort_order ASC, id ASC LIMIT 1");
+                $stmtFirst->execute([$project_id]);
+                $first = $stmtFirst->fetch();
+                if ($first && !empty($first['image_url'])) {
+                    $pdo->prepare("UPDATE projects SET cover_image_url = ? WHERE id = ?")
+                        ->execute([$first['image_url'], $project_id]);
+                    $cover_image_path = $first['image_url'];
+                }
+            }
+
             $_SESSION['message'] = "專案已成功新增！" . ($gallery_count > 0 ? "已上傳 $gallery_count 張圖庫圖片。" : "");
             $_SESSION['message_type'] = 'success';
             $redirect_id = $project_id;
@@ -347,6 +445,8 @@ try {
             break;
 
         case 'update':
+            // 驗證基本資料（僅限更新）
+            validate_project_data('update');
             $id = intval($_POST['id']);
             if ($id <= 0) {
                 throw new Exception("無效的專案 ID");
@@ -358,25 +458,37 @@ try {
             $old_cover_image = $_POST['old_cover_image'] ?? '';
             $old_preview_media = $_POST['old_preview_media'] ?? '';
 
-            // 處理檔案上傳
-            $cover_image_path = handle_upload('cover_image', $old_cover_image, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], 10485760);
-            if ($cover_image_path === false) {
-                throw new Exception($_SESSION['message'] ?? '封面圖片上傳失敗');
-            }
+            // 先清理輸入以便檔名命名
+            $title = trim($_POST['title']);
+            $description = trim($_POST['description']);
+            $project_link = !empty($_POST['project_link']) ? trim($_POST['project_link']) : null;
+            $github_link = !empty($_POST['github_link']) ? trim($_POST['github_link']) : null;
 
-            $preview_media_path = handle_upload('preview_media', $old_preview_media, ['image/gif', 'video/mp4', 'video/webm'], 20971520);
-            if ($preview_media_path === false) {
-                throw new Exception($_SESSION['message'] ?? '預覽媒體上傳失敗');
+            // 處理主媒體上傳（整合 cover/preview）
+            $cover_image_path = $old_cover_image;
+            $preview_media_path = $old_preview_media;
+            $hasHero = isset($_FILES['hero_media']) && $_FILES['hero_media']['error'] !== UPLOAD_ERR_NO_FILE;
+            if ($hasHero) {
+                $type = $_FILES['hero_media']['type'] ?? '';
+                if (strpos($type, 'video/') === 0) {
+                    $preview_media_path = handle_upload('hero_media', $preview_media_path, ['video/mp4', 'video/webm'], 20971520, $title);
+                    if ($preview_media_path === false) throw new Exception($_SESSION['message'] ?? '主媒體上傳失敗');
+                } else {
+                    $cover_image_path = handle_upload('hero_media', $cover_image_path, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], 10485760, $title);
+                    if ($cover_image_path === false) throw new Exception($_SESSION['message'] ?? '主媒體上傳失敗');
+                }
+            } else {
+                // fallback：維持舊欄位（相容）
+                $cover_image_path = handle_upload('cover_image', $cover_image_path, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], 10485760, $title);
+                if ($cover_image_path === false) throw new Exception($_SESSION['message'] ?? '封面圖片上傳失敗');
+                $preview_media_path = handle_upload('preview_media', $preview_media_path, ['image/gif', 'video/mp4', 'video/webm'], 20971520, $title);
+                if ($preview_media_path === false) throw new Exception($_SESSION['message'] ?? '預覽媒體上傳失敗');
             }
 
             $is_published = isset($_POST['is_published']) ? 1 : 0;
             $sort_order = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : 0;
             
-            // 清理輸入資料
-            $title = trim($_POST['title']);
-            $description = trim($_POST['description']);
-            $project_link = !empty($_POST['project_link']) ? trim($_POST['project_link']) : null;
-            $github_link = !empty($_POST['github_link']) ? trim($_POST['github_link']) : null;
+            // 清理輸入資料（已於上方取得 $title 等）
 
             // 更新專案資料
             $sql = "UPDATE projects SET category_id = ?, title = ?, description = ?, cover_image_url = ?, preview_media_url = ?, project_link = ?, github_link = ?, sort_order = ?, is_published = ? WHERE id = ?";
@@ -406,6 +518,18 @@ try {
             // 處理新的圖庫上傳
             $gallery_count = handle_gallery_uploads($pdo, $id);
 
+            // 若尚無封面且有圖庫，使用第一張圖庫圖片作為封面
+            if (empty($cover_image_path)) {
+                $stmtFirst = $pdo->prepare("SELECT image_url FROM project_galleries WHERE project_id = ? ORDER BY sort_order ASC, id ASC LIMIT 1");
+                $stmtFirst->execute([$id]);
+                $first = $stmtFirst->fetch();
+                if ($first && !empty($first['image_url'])) {
+                    $pdo->prepare("UPDATE projects SET cover_image_url = ? WHERE id = ?")
+                        ->execute([$first['image_url'], $id]);
+                    $cover_image_path = $first['image_url'];
+                }
+            }
+
             $_SESSION['message'] = "專案已成功更新！" . ($gallery_count > 0 ? "已新增 $gallery_count 張圖庫圖片。" : "") . ($meta_updated > 0 ? "已更新 $meta_updated 筆圖庫資訊。" : "");
             $_SESSION['message_type'] = 'success';
             $redirect_id = $id;
@@ -413,7 +537,7 @@ try {
             log_action('update_project_success', "Project ID: $id, Title: $title");
             break;
 
-        case 'delete':
+    case 'delete':
             $id = intval($_GET['id'] ?? 0);
             if ($id <= 0) {
                 throw new Exception("無效的專案 ID");

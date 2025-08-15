@@ -42,6 +42,35 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   };
 
+  // 將相對路徑安全編碼並轉為絕對網址（修正中文檔名/路徑問題）
+  const toAbsEncodedUrl = (u) => {
+    if (!u) return "";
+    try {
+      const trimmed = String(u).trim();
+      // 統一先嘗試建立 URL 物件
+      let urlObj;
+      if (/^https?:\/\//i.test(trimmed)) {
+        urlObj = new URL(trimmed);
+      } else {
+        // 相對路徑或以 / 開頭
+        urlObj = new URL(trimmed.replace(/^\/+/, '/'), window.location.origin);
+      }
+
+      // 若來源網域不同且屬於本站靜態資源（/uploads/*），改寫為目前網域，避免混合內容被阻擋
+      if (urlObj.host !== window.location.host && urlObj.pathname.startsWith('/uploads/')) {
+        urlObj = new URL(urlObj.pathname + urlObj.search + urlObj.hash, window.location.origin);
+      }
+
+      // 針對路徑做 URI 編碼（保留斜線），避免中文檔名失敗
+      const encodedPath = urlObj.pathname.split('/').map((seg) => encodeURIComponent(decodeURIComponent(seg))).join('/');
+      urlObj.pathname = encodedPath;
+      return urlObj.toString();
+    } catch (e) {
+      // 至少回傳編碼後的原字串
+      return encodeURI(u);
+    }
+  };
+
   // 錯誤處理系統
   function showErrorMessage(message) {
     const errorDiv = document.createElement('div');
@@ -601,14 +630,15 @@ document.addEventListener("DOMContentLoaded", () => {
     portfolioList.innerHTML = "";
     if (projectsToRender.length > 0) {
       projectsToRender.forEach((project) => {
-        const mediaUrl = project.preview_media_url;
-        let mediaElement =
-          mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.endsWith(".webm"))
-            ? `<video src="${mediaUrl}" autoplay loop muted playsinline class="capsule-media" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"></video><div class="missing-media" style="display:none; width:100%; height:200px; background:#f8f9fa; border:2px dashed #dee2e6; justify-content:center; align-items:center; color:#6c757d;">媒體載入失敗</div>`
-            : `<img src="${
-                mediaUrl ||
-                "uploads/placeholder.svg"
-              }" alt="${project.title} preview" class="capsule-media" onerror="this.src='uploads/placeholder.svg'; this.alt='圖片載入失敗';">`;
+        // 正規化 URL 與副檔名判斷，避免中文/空白/查詢字串造成判斷錯誤
+  const rawUrl = (project.preview_media_url || "").trim();
+        const urlForExt = rawUrl.split('?')[0].toLowerCase();
+        const isVideo = urlForExt.endsWith('.mp4') || urlForExt.endsWith('.webm') || urlForExt.startsWith('data:video');
+  const safeUrl = rawUrl ? toAbsEncodedUrl(rawUrl) : toAbsEncodedUrl("uploads/placeholder.svg");
+
+        let mediaElement = isVideo
+          ? `<video src="${safeUrl}" autoplay loop muted playsinline class="capsule-media" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"></video><div class="missing-media" style="display:none; width:100%; height:200px; background:#f8f9fa; border:2px dashed #dee2e6; justify-content:center; align-items:center; color:#6c757d;">媒體載入失敗</div>`
+          : `<img src="${safeUrl}" alt="${project.title} preview" class="capsule-media" referrerpolicy="no-referrer" decoding="async" onerror="this.src='uploads/placeholder.svg'; this.alt='圖片載入失敗';">`;
         const capsule = document.createElement("div");
         capsule.className = "portfolio-capsule";
         capsule.dataset.projectId = project.id;
@@ -747,7 +777,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error(`API 請求失敗`);
       const project = await response.json();
       if (project && !project.error) {
-        let allImages = [];
+  let allImages = [];
         const coverMediaUrl = project.cover_image_url || "";
         if (coverMediaUrl) {
           allImages.push({ url: coverMediaUrl, caption: "封面主圖" });
@@ -757,23 +787,23 @@ document.addEventListener("DOMContentLoaded", () => {
             allImages.push({ url: img.image_url, caption: img.caption || "" });
           });
         }
-        const stageHTML = allImages
+  const stageHTML = allImages
           .map(
             (img, index) =>
-              `<img src="${img.url}" alt="${img.caption}" class="stage-media ${
+        `<img src="${toAbsEncodedUrl(img.url)}" alt="${img.caption}" class="stage-media ${
                 index === 0 ? "is-active" : ""
-              }" data-index="${index}" onerror="this.src='uploads/placeholder.svg'; this.alt='圖片載入失敗';"`
+      }" data-index="${index}" data-caption="${(img.caption || '').replace(/\"/g, '&quot;')}" onerror="this.src='uploads/placeholder.svg'; this.alt='圖片載入失敗';">`
           )
           .join("");
-        const filmstripHTML =
+  const filmstripHTML =
           allImages.length > 1
             ? `<div class="showcase-filmstrip"><div class="filmstrip-nav">${allImages
                 .map(
                   (img, index) =>
-                    `<div class="filmstrip-capsule ${
+        `<div class="filmstrip-capsule ${
                       index === 0 ? "is-active" : ""
-                    }" data-index="${index}"><img src="${
-                      img.url
+        }" data-index="${index}" role="button" tabindex="0" aria-selected="${index === 0 ? "true" : "false"}"><img src="${
+                      toAbsEncodedUrl(img.url)
                     }" alt="thumbnail ${index + 1}" onerror="this.src='uploads/placeholder.svg';"></div>`
                 )
                 .join("")}</div></div>`
@@ -799,7 +829,13 @@ document.addEventListener("DOMContentLoaded", () => {
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
           <div class="modal-body-content">
             <div class="interactive-showcase">
-              <div class="showcase-stage">${stageHTML}</div>
+              <div class="showcase-stage">
+                ${stageHTML}
+                <button class="stage-nav stage-nav-prev" aria-label="上一張" title="上一張" type="button">&#10094;</button>
+                <button class="stage-nav stage-nav-next" aria-label="下一張" title="下一張" type="button">&#10095;</button>
+                <button class="stage-fit-toggle" aria-label="切換填滿/等比" title="切換顯示模式" type="button">⤢</button>
+                <div class="stage-caption" aria-live="polite"></div>
+              </div>
               ${filmstripHTML}
               <div class="showcase-info-panel">
                 <div class="info-header">
@@ -820,8 +856,59 @@ document.addEventListener("DOMContentLoaded", () => {
         modalContent.innerHTML = finalHTML;
         const stage = modalContent.querySelector(".showcase-stage");
         const thumbnails = modalContent.querySelectorAll(".filmstrip-capsule");
+  const prevBtn = modalContent.querySelector('.stage-nav-prev');
+  const nextBtn = modalContent.querySelector('.stage-nav-next');
+  const fitToggle = modalContent.querySelector('.stage-fit-toggle');
+  const captionEl = modalContent.querySelector('.stage-caption');
+
+        // 如果只有一張圖，隱藏左右箭頭
+        if (!thumbnails || thumbnails.length < 2) {
+          if (prevBtn) prevBtn.style.display = 'none';
+          if (nextBtn) nextBtn.style.display = 'none';
+        }
+
+        // 根據目前顯示圖片動態調整舞台比例（桌機）
+        const updateStageToActive = () => {
+          const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
+          if (isSmallScreen) {
+            // 手機維持自動高度，不強制比例
+            stage.style.aspectRatio = '';
+            return;
+          }
+          const activeImg = stage.querySelector('.stage-media.is-active');
+          if (!activeImg) return;
+          const applyRatio = () => {
+            const w = activeImg.naturalWidth;
+            const h = activeImg.naturalHeight;
+            if (w > 0 && h > 0) {
+              stage.style.aspectRatio = `${w} / ${h}`;
+            }
+          };
+          if (activeImg.complete && activeImg.naturalWidth) {
+            applyRatio();
+          } else {
+            activeImg.addEventListener('load', applyRatio, { once: true });
+          }
+        };
+
+        const updateCaption = () => {
+          const activeImg = stage.querySelector('.stage-media.is-active');
+          const text = activeImg?.dataset?.caption || '';
+          if (captionEl) captionEl.textContent = text;
+        };
+
+        const preloadNeighbor = () => {
+          const activeImg = stage.querySelector('.stage-media.is-active');
+          if (!activeImg) return;
+          const allStageImgs = Array.from(stage.querySelectorAll('.stage-media'));
+          const idx = parseInt(activeImg.dataset.index, 10);
+          const prevIdx = (idx - 1 + allStageImgs.length) % allStageImgs.length;
+          const nextIdx = (idx + 1) % allStageImgs.length;
+          [prevIdx, nextIdx].forEach(i => { const src = allStageImgs[i].getAttribute('src'); const img = new Image(); img.src = src; });
+        };
+
         thumbnails.forEach((thumb) => {
-          thumb.addEventListener("click", () => {
+          const activateThumb = () => {
             const activeIndex = thumb.dataset.index;
             const currentActive = stage.querySelector(".stage-media.is-active");
             const newActive = stage.querySelector(`.stage-media[data-index="${activeIndex}"]`);
@@ -841,13 +928,69 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // 更新縮圖狀態
             const currentThumb = modalContent.querySelector(".filmstrip-capsule.is-active");
-            if (currentThumb) currentThumb.classList.remove("is-active");
+            if (currentThumb) {
+              currentThumb.classList.remove("is-active");
+              currentThumb.setAttribute('aria-selected', 'false');
+            }
             thumb.classList.add("is-active");
+            thumb.setAttribute('aria-selected', 'true');
+
+            // 讓當前縮圖自動捲動到可視範圍
+            thumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             
+            // 根據新圖片調整舞台比例
+            updateStageToActive();
+
+            // 更新圖說與預載相鄰圖片
+            updateCaption();
+            preloadNeighbor();
+
             // 播放音效
             if (audio) audio.playClick();
+          };
+          thumb.addEventListener("click", activateThumb);
+          thumb.addEventListener("keydown", (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              activateThumb();
+            }
           });
         });
+
+        // 左右箭頭事件
+        const clickPrev = (e) => { e.stopPropagation(); navigateGallery('prev'); };
+        const clickNext = (e) => { e.stopPropagation(); navigateGallery('next'); };
+        if (prevBtn) prevBtn.addEventListener('click', clickPrev);
+        if (nextBtn) nextBtn.addEventListener('click', clickNext);
+
+        // 填滿/等比切換：在 active 圖片上切換 object-fit
+        if (fitToggle) {
+          fitToggle.addEventListener('click', () => {
+            const activeImg = stage.querySelector('.stage-media.is-active');
+            if (!activeImg) return;
+            const isContain = getComputedStyle(activeImg).objectFit === 'contain';
+            activeImg.style.objectFit = isContain ? 'cover' : 'contain';
+          });
+        }
+
+        // 觸控手勢：左右滑動切換
+        let touchStartX = null;
+        stage.addEventListener('touchstart', (e) => {
+          touchStartX = e.changedTouches[0].clientX;
+        }, { passive: true });
+        stage.addEventListener('touchend', (e) => {
+          if (touchStartX == null) return;
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          if (Math.abs(dx) > 40) {
+            if (dx > 0) navigateGallery('prev'); else navigateGallery('next');
+          }
+          touchStartX = null;
+        });
+
+  // 初次開啟時設定舞台比例、圖說、預載相鄰
+  updateStageToActive();
+  updateCaption();
+  preloadNeighbor();
         // 初始化 GLightbox
         if (lightbox) lightbox.destroy();
         lightbox = GLightbox({

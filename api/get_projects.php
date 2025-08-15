@@ -26,7 +26,7 @@ $sql = "
     SELECT 
         p.id, 
         p.title, 
-        p.preview_media_url,
+        TRIM(COALESCE(NULLIF(TRIM(p.preview_media_url), ''), p.cover_image_url)) AS preview_media_url,
         c.name AS category_name
     FROM 
         projects p

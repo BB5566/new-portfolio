@@ -80,68 +80,38 @@ include 'templates/header.php';
         <label for="description">描述</label>
         <textarea id="description" name="description" rows="10" required><?php echo htmlspecialchars($project['description']); ?></textarea>
     </div>
-    <div class="form-group">
-        <label for="cover_image">封面圖片 (用於彈出視窗)</label>
-        <?php if (!empty($project['cover_image_url'])): ?>
-            <?php
-            $coverPath = '../' . $project['cover_image_url'];
-            $coverExists = file_exists($coverPath);
-            ?>
-            <div class="current-image-status">
-                <?php if ($coverExists): ?>
-                    <img src="../<?php echo htmlspecialchars($project['cover_image_url']); ?>" alt="Current Cover" class="preview-image">
-                    <div class="file-status file-status-success">
-                        <span>✓ 封面圖片：<?php echo basename($project['cover_image_url']); ?></span>
-                    </div>
-                <?php else: ?>
-                    <div class="missing-image-placeholder">
-                        <span class="missing-image-icon">⚠</span>
-                        <p>封面圖片遺失</p>
-                    </div>
-                    <div class="file-status file-status-error">
-                        <span>✗ 遺失檔案：<?php echo basename($project['cover_image_url']); ?></span>
-                    </div>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-        <input type="file" id="cover_image" name="cover_image" <?php echo empty($project['id']) ? 'required' : ''; ?>>
-        <input type="hidden" name="old_cover_image" value="<?php echo htmlspecialchars($project['cover_image_url']); ?>">
-    </div>
-
-    <!-- NEW: Preview Media Upload -->
-    <div class="form-group">
-        <label for="preview_media">預覽媒體 (用於作品集列表的 GIF 或 MP4)</label>
-        <?php if (!empty($project['preview_media_url'])): ?>
-            <?php
-            $previewPath = '../' . $project['preview_media_url'];
-            $previewExists = file_exists($previewPath);
-            ?>
-            <div class="current-image-status">
-                <?php if ($previewExists): ?>
-                    <div class="preview-media-container">
-                        <?php if (str_ends_with($project['preview_media_url'], '.mp4') || str_ends_with($project['preview_media_url'], '.webm')): ?>
-                            <video src="../<?php echo htmlspecialchars($project['preview_media_url']); ?>" autoplay loop muted class="preview-image"></video>
+        <div class="form-group">
+                <label for="hero_media">主媒體（封面/預覽）</label>
+                <p style="margin: .25rem 0 .75rem; color: #666; font-size: .9rem;">
+                    上傳一個檔案即可：圖片（jpg/png/webp/gif）會做為封面；GIF 亦會用於列表預覽；影片（mp4/webm）會用於列表預覽，封面則沿用現有封面或可用的圖庫第一張。
+                </p>
+                <?php
+                    $hasPreview = !empty($project['preview_media_url']) && file_exists('../' . $project['preview_media_url']);
+                    $hasCover = !empty($project['cover_image_url']) && file_exists('../' . $project['cover_image_url']);
+                    if ($hasPreview || $hasCover):
+                        $display = $hasPreview ? $project['preview_media_url'] : $project['cover_image_url'];
+                        $isVideo = preg_match('/\.(mp4|webm|mov)$/i', $display);
+                ?>
+                    <div class="current-image-status">
+                        <?php if ($isVideo): ?>
+                            <video src="../<?php echo htmlspecialchars($display); ?>" autoplay loop muted class="preview-image"></video>
                         <?php else: ?>
-                            <img src="../<?php echo htmlspecialchars($project['preview_media_url']); ?>" alt="Current Preview" class="preview-image">
+                            <img src="../<?php echo htmlspecialchars($display); ?>" alt="Current Media" class="preview-image">
                         <?php endif; ?>
-                    </div>
-                    <div class="file-status file-status-success">
-                        <span>✓ 預覽媒體：<?php echo basename($project['preview_media_url']); ?></span>
+                        <div class="file-status file-status-success">
+                            <span>目前使用：<?php echo basename($display); ?><?php echo $hasPreview ? '（列表預覽）' : '（封面）'; ?></span>
+                        </div>
                     </div>
                 <?php else: ?>
-                    <div class="missing-image-placeholder">
+                    <div class="missing-image-placeholder" style="margin-bottom: .5rem;">
                         <span class="missing-image-icon">⚠</span>
-                        <p>預覽媒體遺失</p>
                     </div>
-                    <div class="file-status file-status-error">
-                        <span>✗ 遺失檔案：<?php echo basename($project['preview_media_url']); ?></span>
-                    </div>
+                    <div class="file-status file-status-error"><span>目前尚未設定主媒體</span></div>
                 <?php endif; ?>
-            </div>
-        <?php endif; ?>
-        <input type="file" id="preview_media" name="preview_media">
-        <input type="hidden" name="old_preview_media" value="<?php echo htmlspecialchars($project['preview_media_url']); ?>">
-    </div>
+                <input type="file" id="hero_media" name="hero_media" <?php echo empty($project['id']) ? 'required' : ''; ?>>
+                <input type="hidden" name="old_cover_image" value="<?php echo htmlspecialchars($project['cover_image_url']); ?>">
+                <input type="hidden" name="old_preview_media" value="<?php echo htmlspecialchars($project['preview_media_url']); ?>">
+        </div>
 
     <div class="form-group">
         <label>技能標籤</label>

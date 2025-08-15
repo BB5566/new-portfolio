@@ -1239,6 +1239,12 @@ body {
   object-fit: cover;
 }
 
+/* 可訪問性：縮圖 focus 樣式 */
+.filmstrip-capsule:focus {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
 /* 資訊面板 */
 .showcase-info-panel {
   background: var(--c-bg);
@@ -1470,8 +1476,9 @@ body {
   }
   
   .showcase-stage {
-    border-radius: 0;
-    min-height: 250px;
+  border-radius: 0;
+  min-height: 240px;
+  aspect-ratio: auto; /* 手機移除固定比例，避免高度過高 */
   }
   
   .showcase-info-panel {
@@ -1654,6 +1661,84 @@ body {
   animation: imageLoadIn 0.5s ease-out;
 }
 
+/* 舞台左右切換箭頭 */
+.stage-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.25s ease;
+  user-select: none;
+  backdrop-filter: blur(4px);
+}
+.stage-nav:hover { background: rgba(0,0,0,0.6); transform: translateY(-50%) scale(1.06); }
+.stage-nav:active { transform: translateY(-50%) scale(0.98); }
+.stage-nav:focus { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+.stage-nav-prev { left: 12px; }
+.stage-nav-next { right: 12px; }
+
+@media (min-width: 1200px) {
+  .stage-nav { width: 50px; height: 50px; }
+  .stage-nav-prev { left: 16px; }
+  .stage-nav-next { right: 16px; }
+}
+
+@media (max-width: 768px) {
+  .stage-nav { width: 40px; height: 40px; }
+}
+
+/* 舞台：顯示模式切換按鈕與圖說 */
+.stage-fit-toggle {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 6;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+.stage-fit-toggle:hover { background: rgba(0,0,0,0.6); transform: scale(1.06); }
+.stage-fit-toggle:active { transform: scale(0.98); }
+.stage-fit-toggle:focus { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+
+.stage-caption {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  right: 60px;
+  color: #f5f5f5;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  padding: 6px 10px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.45));
+  border-radius: 6px;
+  max-height: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 預設讓舞台圖等比呈現，必要時用 JS 切換為 cover */
+.showcase-stage .stage-media { object-fit: contain; }
+
 /* 標籤浮現動畫 */
 @keyframes tagReveal {
   0% {
@@ -1830,6 +1915,69 @@ body {
   0% { opacity: 0.6; }
   100% { opacity: 1; }
 }
+
+/* --- 17. Modal Pro Layout Overrides --- */
+/* 更專業的彈窗佈局：桌機雙欄（左：舞台+縮圖，右：資訊區），手機維持單欄 */
+.interactive-showcase {
+  height: 100%;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto 1fr; /* stage、filmstrip、info */
+  grid-template-areas:
+    "stage"
+    "filmstrip"
+    "info";
+  gap: 0;
+}
+
+/* 讓 grid 子項在容器內可正確收縮，避免溢出 */
+.interactive-showcase > * { min-width: 0; min-height: 0; }
+
+.showcase-stage { grid-area: stage; }
+.showcase-filmstrip { grid-area: filmstrip; }
+.showcase-info-panel { grid-area: info; }
+
+/* 穩定舞台比例與高度，避免版面跳動 */
+.showcase-stage {
+  border-radius: 16px 16px 0 0;
+  min-height: clamp(320px, 42vh, 560px);
+  aspect-ratio: 16 / 9; /* 維持專業常見比例 */
+  max-height: 62vh;
+}
+
+.showcase-info-panel {
+  overflow: auto; /* 右側資訊可捲動 */
+  border-radius: 0 0 16px 16px;
+}
+
+/* 桌機：雙欄網格，右側資訊區佔滿高度 */
+@media (min-width: 992px) {
+  .modal-body-content { padding: 0.5rem; }
+  .interactive-showcase {
+    grid-template-columns: 1.4fr 1fr;
+    grid-template-rows: auto auto; /* stage、filmstrip 與右側 info 對齊 */
+    grid-template-areas:
+      "stage info"
+      "filmstrip info";
+    gap: 1rem 1.5rem;
+    padding: 0.5rem;
+  }
+  .showcase-stage { border-radius: 16px; }
+  .showcase-info-panel {
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+  }
+  .showcase-filmstrip {
+    background: transparent;
+    border-top: none;
+    padding: 0.5rem 0;
+  }
+}
+
+/* 進一步優化縮圖尺寸與間距（桌機） */
+@media (min-width: 1200px) {
+  .filmstrip-nav { gap: 0.6rem; }
+  .filmstrip-capsule { width: 90px; height: 68px; }
+}
 .info-header .category-badge {
   display: inline-block;
   background-color: var(--c-accent);
@@ -1848,13 +1996,11 @@ body {
 }
 .info-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  grid-template-columns: 2fr 1fr; /* default: two columns for desktop */
+  gap: 2rem;
 }
 @media (min-width: 992px) {
-  .info-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  }
+  .info-grid { grid-template-columns: 2fr 1fr; }
 }
 .info-module .module-title {
   font-weight: 700;
