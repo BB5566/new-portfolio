@@ -278,7 +278,7 @@ video {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1.2rem;
+  gap: 4.2rem;
   position: relative;
   z-index: 2;
 }
@@ -286,20 +286,14 @@ video {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.15em;
-  font-size: clamp(2.5rem, 9.5vw, 5.2rem);
+  gap: 0.05em;
+  font-size: clamp(5.5rem, 9.5vw, 8rem);
   font-weight: 900;
-  font-style: italic;
+  /* font-style: italic; */
   color: var(--c-text);
   line-height: 1;
 }
 
-.ultra-bold {
-  font-weight: 900 !important;
-  font-style: italic !important;
-  font-family: "LINESeedTW" !important;
-  text-shadow: 2px 2px 0px var(--accent-indigo) !important;
-}
 .profile-container {
   display: flex;
   flex-direction: column;
@@ -308,8 +302,8 @@ video {
   margin: 2rem 0;
 }
 .profile-photo {
-  width: clamp(100px, 20vw, 150px);
-  height: clamp(100px, 20vw, 150px);
+  width: clamp(150px, 25vw, 200px);
+  height: clamp(150px, 25vw, 200px);
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid var(--c-bg);
@@ -326,6 +320,7 @@ video {
   flex-shrink: 0;
   cursor: pointer;
   transform: translateY(0.05em);
+  margin-left: 5px;
 }
 .eye {
   width: 0.4em;
@@ -340,6 +335,9 @@ video {
 }
 .tagline-container {
   margin: 1rem 0;
+      width: 80%;
+
+
 }
 .tagline-capsule {
   background-color: var(--c-text);
@@ -349,7 +347,6 @@ video {
   padding: 0.8rem 2rem;
   border-radius: var(--border-radius-capsule);
   white-space: nowrap;
-  min-width: 370px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -2179,6 +2176,7 @@ body {
   border-radius: 2px;
   margin-top: 2rem;
   overflow: hidden;
+  margin: auto;
 }
 
 .progress-fill {
