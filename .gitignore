@@ -1,15 +1,38 @@
-# Sensitive files
+### 1. 憑證與敏感資料 ###
+.env
 admin/.htpasswd
-portfolio_db.sql
-resume-bob-tsou.pdf
+admin/.htaccess
 api/db_connect.php
+resume-bob-tsou.pdf
 
-# User uploaded content
-uploads/
+### 2. 日誌與資料庫 ###
+/logs/
+*.log
+portfolio_db.sql
 
-# macOS system files
+### 3. 專案相依套件 ###
+/vendor/
+
+### 4. 使用者上傳 ###
+uploads/*
+!uploads/placeholder.svg
+!uploads/placeholder.jpg
+
+### 5. 作業系統與編輯器暫存檔 ###
+# macOS / Windows / Synology
 .DS_Store
+Thumbs.db
+@eaDir
 
-# Placeholder images
-your-photo.png
-/logs
+# Vim / temp files
+*.swp
+*.swo
+*~
+*.tmp
+
+# Editor-specific
+.vscode/
+.idea/
+
+### 6. 專案自訂忽略 ###
+projects/*
