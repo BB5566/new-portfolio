@@ -1,26 +1,14 @@
-# 日誌檔案
-logs/*.log
-logs/admin_actions.log
+# Sensitive files
+admin/.htpasswd
+portfolio_db.sql
+resume-bob-tsou.pdf
+api/db_connect.php
 
-api/*
+# User uploaded content
+uploads/
 
-projects/*
-
-# 上傳的檔案（根據需求決定是否要版本控制）
-uploads/*
-!uploads/placeholder.svg
-!uploads/placeholder.jpg
-
-# 系統檔案
+# macOS system files
 .DS_Store
-Thumbs.db
 
-# 編輯器檔案
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# 暫存檔案
-*~
-*.tmp
+# Placeholder images
+your-photo.png
