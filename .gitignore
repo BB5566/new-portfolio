@@ -4,6 +4,8 @@ logs/admin_actions.log
 
 api/*
 
+projects/*
+
 # 上傳的檔案（根據需求決定是否要版本控制）
 uploads/*
 !uploads/placeholder.svg
