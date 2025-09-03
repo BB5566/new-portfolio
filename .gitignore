@@ -3,7 +3,6 @@
 admin/.htpasswd
 admin/.htaccess
 api/db_connect.php
-resume-bob-tsou.pdf
 
 ### 2. 日誌與資料庫 ###
 /logs/
