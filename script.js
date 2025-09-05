@@ -370,6 +370,16 @@ function setupEyeTracking() {
     yTo((clientY / window.innerHeight) * 10 - 5);
   });
 
+  // 滑鼠離開事件 - 眼球回到正中央
+  elements.heroContent.addEventListener("mouseleave", () => {
+    gsap.to(elements.eyes, {
+      x: 0,
+      y: 0,
+      duration: 0.6,
+      ease: "power2.out"
+    });
+  });
+
   // 設定眨眼動畫
   setupBlinking();
 }
@@ -620,6 +630,7 @@ function setupScrollTriggers() {
         scrollTrigger: {
           trigger: ".portfolio-list",
           start: "top 85%",
+          once: true, // 只觸發一次，提升性能
           toggleActions: "play none none reverse"
         }
       }
@@ -710,7 +721,7 @@ function renderProjects(projectsToRender) {
 
       // 創建作品膠囊
       const capsule = document.createElement("div");
-      capsule.className = "portfolio-capsule";
+      capsule.className = "portfolio-capsule hover-lift";
       capsule.dataset.projectId = project.id;
       capsule.innerHTML = `
         ${mediaElement}
@@ -777,7 +788,14 @@ function handleFilterClick(event) {
     duration: 0.4,
     onComplete: () => {
       renderProjects(filtered);
-      gsap.to(elements.portfolioList, { opacity: 1, duration: 0.4 });
+      gsap.to(elements.portfolioList, { 
+        opacity: 1, 
+        duration: 0.4,
+        onComplete: () => {
+          // 重新計算 ScrollTrigger 位置以避免動畫觸發點錯亂
+          ScrollTrigger.refresh();
+        }
+      });
     }
   });
 
@@ -791,6 +809,7 @@ function handleFilterClick(event) {
 // 防止重複請求的變數
 let isModalLoading = false;
 let lastRequestTime = 0;
+let currentModalRequest = null; // AbortController 實例
 
 /**
  * 顯示專案詳情模態框
@@ -809,6 +828,12 @@ async function showProjectModal(projectId) {
   if (timeSinceLastRequest < 500) {
     console.log("請求過於頻繁，請稍後再試");
     return;
+  }
+
+  // 如果有進行中的請求，取消它
+  if (currentModalRequest) {
+    currentModalRequest.abort();
+    console.log("取消前一個請求");
   }
 
   // 檢查模態框是否已經顯示，如果是則先關閉
@@ -835,6 +860,9 @@ async function showProjectModal(projectId) {
   projectModal.show();
 
   try {
+    // 創建新的 AbortController
+    currentModalRequest = new AbortController();
+    
     // 添加延遲避免 API 429 錯誤
     await new Promise(resolve => setTimeout(resolve, 800));
     
@@ -842,7 +870,8 @@ async function showProjectModal(projectId) {
       headers: {
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache'
-      }
+      },
+      signal: currentModalRequest.signal // 加入中止信號
     });
     
     if (!response.ok) {
@@ -859,6 +888,12 @@ async function showProjectModal(projectId) {
       throw new Error(project?.error || "專案資料格式錯誤");
     }
   } catch (error) {
+    // 如果是用戶取消的請求，不顯示錯誤
+    if (error.name === 'AbortError') {
+      console.log("請求已被取消");
+      return;
+    }
+    
     console.error("無法載入專案詳情:", error);
     modalContent.innerHTML = `
       <div class="p-4 text-center">
@@ -871,6 +906,7 @@ async function showProjectModal(projectId) {
     `;
   } finally {
     isModalLoading = false;
+    currentModalRequest = null; // 清除請求參考
   }
 }
 

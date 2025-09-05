@@ -130,11 +130,12 @@
             src="your-photo.png"
             alt="Bob Tsou 的大頭照"
             class="profile-photo"
+            fetchpriority="high"
           />
           <div class="profile-actions">
             <a
               href="resume-bob-tsou.pdf"
-              class="cta-secondary"
+              class="cta-secondary hover-lift"
               download
               aria-label="下載履歷 PDF 檔案"
             >
@@ -142,7 +143,7 @@
             </a>
             <a
               href="https://github.com/BB5566"
-              class="cta-secondary github-link"
+              class="cta-secondary github-link hover-lift"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="查看 GitHub 專案"
@@ -214,7 +215,7 @@
                 </p>
                 <h4 class="section-title">SKILLS</h4>
                 <div class="skills-grid">
-                  <div class="skill-group">
+                  <div class="skill-group hover-lift">
                     <h5>設計 (Design)</h5>
                     <div class="skill-cloud">
                       <span class="skill-capsule">Photoshop</span
@@ -222,7 +223,7 @@
                       ><span class="skill-capsule">Figma</span>
                     </div>
                   </div>
-                  <div class="skill-group">
+                  <div class="skill-group hover-lift">
                     <h5>開發 (Development)</h5>
                     <div class="skill-cloud">
                       <span class="skill-capsule">HTML</span
@@ -743,16 +744,18 @@
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
       integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
       crossorigin="anonymous"
+      defer
     ></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
       integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
       crossorigin="anonymous"
+      defer
     ></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js" defer></script>
 
     <!-- 錯誤監控腳本 - 在主腳本之前載入 -->
     <script src="error-monitor.js"></script>

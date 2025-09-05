@@ -1,6 +1,26 @@
 /* ===============================================
    1. CSS 變數與主題系統
    =============================================== */
+
+/* 字體定義與 Unicode 範圍優化 */
+@font-face {
+  font-family: 'LINESeedTW';
+  src: url('fonts/LINESeedTW_OTF_Rg.woff2') format('woff2'),
+       url('fonts/LINESeedTW_OTF_Rg.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+2F800-2FA1F; /* 中文字符範圍 */
+}
+
+@font-face {
+  font-family: 'LINESeedTW';
+  src: url('fonts/LINESeedTW_OTF_Bd.woff2') format('woff2'),
+       url('fonts/LINESeedTW_OTF_Bd.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+  unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+2F800-2FA1F;
+}
+
 :root {
   /* 顏色系統 */
   --color-primary: #f8cb74;
@@ -81,6 +101,46 @@ body.dark-mode {
   padding: 0;
 }
 
+/* 通用工具類別 */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* 可訪問性 - 自定義焦點樣式 */
+*:focus-visible {
+  outline: 2px dashed var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* 移除默認焦點樣式 */
+*:focus {
+  outline: none;
+}
+
+/* 按鈕和連結的焦點樣式 */
+button:focus-visible,
+a:focus-visible,
+.cta-secondary:focus-visible,
+.filter-btn:focus-visible {
+  outline: 2px dashed var(--color-accent);
+  outline-offset: 4px;
+  background: rgba(74, 71, 163, 0.1);
+}
+
+/* 表單元素的焦點樣式 */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px dashed var(--color-primary);
+  outline-offset: 2px;
+}
+
 html {
   scroll-behavior: var(--scroll-behavior);
   -webkit-overflow-scrolling: touch;
@@ -91,7 +151,7 @@ html {
 html,
 body {
   height: 100%;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Montserrat", "LINESeedTW", sans-serif; /* 英文優先，中文回退 */
   font-weight: 400;
   background-color: var(--color-bg);
   color: var(--color-text);
@@ -699,12 +759,7 @@ body {
   padding: var(--spacing-md);
   border-radius: var(--radius-base);
   box-shadow: var(--shadow-subtle);
-  transition: var(--transition-base);
-}
-
-.skill-group:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  /* 移除重複的過渡效果，使用 .hover-lift 類別 */
 }
 
 .skill-group h5 {
@@ -937,7 +992,7 @@ body {
   border-radius: var(--radius-base);
   overflow: hidden;
   box-shadow: var(--shadow-subtle);
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* 移除重複的過渡效果，使用 .hover-lift 類別 */
   cursor: pointer;
   position: relative;
   aspect-ratio: 4/3;
@@ -2176,4 +2231,3 @@ body {
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
   }
-}
