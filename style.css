@@ -365,7 +365,7 @@ video {
   line-height: 0;
   color: var(--color-bg);
   z-index: 0;
-  height: 300px;
+  height: 120px;
 }
 
 .hero-shape svg {
@@ -595,7 +595,7 @@ video {
 /* 滾動指示器 */
 .scroll-down-indicator {
   position: absolute;
-  bottom: 80px;
+  bottom: 120px;
   left: 0;
   right: 0;
   z-index: 15;
@@ -1461,7 +1461,7 @@ body {
 
 @media (max-width: 768px) {
   .name-container {
-    gap: var(--spacing-lg);
+    gap: var(--spacing-sm);
     flex-direction: column;
     align-items: center;
   }
