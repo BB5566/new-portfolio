@@ -1250,6 +1250,45 @@ async function initializePortfolio() {
 // 14. 啟動應用程式
 // ================================================
 
+// 【修改這裡】將原本的 DOMContentLoaded 監聽器，換成 window.onload
+window.onload = () => {
+  console.log("頁面所有資源載入完成，開始初始化...");
+
+  const startApp = () => {
+    // 檢查 GSAP 是否真的存在
+    if (checkGsapReady()) {
+      initializePortfolio();
+    } else {
+      // GSAP 載入失敗的最終處理
+      console.error("GSAP 載入失敗，網站將以無動畫模式運行。");
+      // 移除 Preloader，讓內容顯示出來
+      document.body.classList.add("loaded");
+      // 這裡可以選擇性地為 body 加上一個 class，用來在 CSS 中禁用所有動畫效果
+      document.body.classList.add("gsap-fallback");
+    }
+  };
+
+  // 檢查 GSAP 是否已就緒
+  if (checkGsapReady()) {
+    startApp();
+  } else {
+    // 如果還沒，給它最多 3 秒的載入時間
+    const checkInterval = setInterval(() => {
+      if (checkGsapReady()) {
+        clearInterval(checkInterval);
+        startApp();
+      }
+    }, 50);
+
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      startApp(); // 3 秒後無論如何都啟動 App
+    }, 3000);
+  }
+};
+
+// 【說明】原本的 DOMContentLoaded 監聽器已替換為 window.onload
+/*
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM 載入完成，開始初始化...");
   
@@ -1273,3 +1312,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 3000);
   }
 });
+*/
