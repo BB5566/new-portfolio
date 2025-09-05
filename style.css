@@ -365,8 +365,7 @@ video {
   line-height: 0;
   color: var(--color-bg);
   z-index: 0;
-  /* 關鍵：保留 120px 高度，確保 SVG 內部圖形不會被壓扁變形 */
-  height: 120px;
+  height: 300px;
 }
 
 .hero-shape svg {
