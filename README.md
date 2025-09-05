@@ -168,8 +168,8 @@ elements.eyes.forEach(eye => {
 🔸 **設計工具**：Photoshop、Illustrator、Figma  
 
 ### 📞 聯絡方式
-- 🌐 **個人網站**：[bb-made.com](http://bb-made.com)
-- 📧 **電子郵件**：hello@bb-made.com
+- 🌐 **作品集展示**：[線上查看](https://bb5566.github.io/new-portfolio/)
+- � **專業履歷**：請透過作品集網站聯絡表單
 - 🐙 **GitHub**：[@BB5566](https://github.com/BB5566)
 
 ---
