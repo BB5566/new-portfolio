@@ -78,7 +78,6 @@
   /* 性能相關 */
   --scroll-behavior: smooth;
   --backface-visibility: hidden;
-  --perspective: 1000px;
   
   /* 間距系統 */
   --spacing-xs: 0.5rem;
@@ -108,15 +107,9 @@ body.dark-mode {
 }
 
 /* 性能優化 - 為經常動畫的元素啟用硬體加速 */
-.animate-element,
-.portfolio-card,
+
 .contact-card,
-.footer-particle,
-.mouse-follower,
-.particle,
-.btn-custom,
-.eye-pupil,
-.floating-action {
+.particle {
   will-change: transform;
   contain: layout style paint;
   transform: translate3d(0, 0, 0);
@@ -174,7 +167,6 @@ button,
 .portfolio-capsule,
 .name-container,
 .eye-container,
-.close-button,
 .glightbox,
 .filmstrip-capsule {
   cursor: none;
@@ -402,6 +394,13 @@ video {
   object-fit: cover;
   border: 4px solid var(--color-bg);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.profile-photo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 /* 標語區 */
@@ -421,6 +420,13 @@ video {
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.tagline-capsule:hover {
+  transform: translateY(-2px);
+  background-color: var(--color-primary);
 }
 
 .typing-cursor {
@@ -441,7 +447,7 @@ video {
   justify-content: center;
 }
 
-.cta-primary,
+
 .cta-secondary {
   display: inline-flex;
   align-items: center;
@@ -451,46 +457,7 @@ video {
   text-decoration: none;
   font-weight: 700;
   font-size: 0.95rem;
-  transition: var(--transition-base);
-}
-
-.cta-primary {
-  background: linear-gradient(135deg, 
-    rgba(74, 71, 163, 0.9), 
-    rgba(248, 203, 116, 0.9));
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  box-shadow: 
-    0 8px 32px rgba(79, 70, 229, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
-}
-
-.cta-primary::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.2), 
-    transparent);
-  transition: left 0.6s ease;
-}
-
-.cta-primary:hover::before {
-  left: 100%;
-}
-
-.cta-primary:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 
-    0 15px 40px rgba(79, 70, 229, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .cta-secondary {
@@ -555,10 +522,18 @@ video {
 /* 滾動指示器 */
 .scroll-down-indicator {
   position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
+  bottom: 80px;
+  left: 0;
+  right: 0;
+  z-index: 15;
+  opacity: 0;
+  transition: none; /* 防止 CSS 過渡干擾 GSAP */
+  width: 25px; /* 明確設定寬度，與 .mouse 一致 */
+  height: 40px; /* 明確設定高度，與 .mouse 一致 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 }
 
 .mouse {
@@ -589,13 +564,16 @@ video {
   }
 }
 
-/* 初始隱藏動畫元素 */
+/* 初始隱藏動畫元素 - 優化的起始狀態 */
 .name-line > span,
 .eye-container,
 .profile-photo,
 .tagline-capsule,
-.profile-actions a {
+.profile-actions a,
+.scroll-down-indicator {
   opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: none; /* 防止 CSS 過渡干擾 GSAP */
 }
 
 /* ===============================================
@@ -994,13 +972,6 @@ body {
   margin-bottom: 0.5rem;
 }
 
-.timeline-description {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--color-text);
-  opacity: 0.8;
-}
-
 /* ===============================================
    10. 作品集區塊
    =============================================== */
@@ -1040,7 +1011,6 @@ body {
   position: relative;
   overflow: hidden;
   margin-bottom: var(--spacing-lg);
-  perspective: 1200px;
 }
 
 .portfolio-list {
@@ -1058,8 +1028,6 @@ body {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: pointer;
   position: relative;
-  transform-style: preserve-3d;
-  perspective: 1000px;
 }
 
 .portfolio-capsule::before {
@@ -1164,47 +1132,6 @@ body {
   font-weight: 600;
   margin-bottom: var(--spacing-xs);
   color: var(--color-text);
-}
-
-.form-control {
-  width: 100%;
-  padding: var(--spacing-sm);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-base);
-  font-family: inherit;
-  font-size: 1rem;
-  background: var(--color-surface);
-  color: var(--color-text);
-  transition: var(--transition-base);
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(248, 203, 116, 0.2);
-}
-
-.form-control textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.btn-submit {
-  background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
-  color: white;
-  border: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--radius-capsule);
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: var(--transition-base);
-  width: 100%;
-}
-
-.btn-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
 }
 
 /* ===============================================
@@ -1580,140 +1507,7 @@ body {
    =============================================== */
 
 /* 磨砂玻璃效果卡片 */
-.glass-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-base);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
 
-/* 3D 浮動效果 */
-.floating-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.3s ease;
-}
-
-.floating-3d:hover {
-  transform: rotateX(5deg) rotateY(5deg) translateZ(10px);
-}
-
-/* 彩虹漸變邊框 */
-.rainbow-border {
-  position: relative;
-  background: var(--color-surface);
-  border-radius: var(--radius-base);
-}
-
-.rainbow-border::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, 
-    #ff0000, #ff7300, #fffb00, #48ff00, 
-    #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-  background-size: 400%;
-  border-radius: var(--radius-base);
-  z-index: -1;
-  animation: rainbow-border 4s linear infinite;
-}
-
-@keyframes rainbow-border {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* 文字發光效果 */
-.glow-text {
-  text-shadow: 
-    0 0 5px rgba(248, 203, 116, 0.5),
-    0 0 10px rgba(248, 203, 116, 0.3),
-    0 0 15px rgba(248, 203, 116, 0.2),
-    0 0 20px rgba(248, 203, 116, 0.1);
-  animation: glow-pulse 3s ease-in-out infinite alternate;
-}
-
-@keyframes glow-pulse {
-  from {
-    text-shadow: 
-      0 0 5px rgba(248, 203, 116, 0.5),
-      0 0 10px rgba(248, 203, 116, 0.3),
-      0 0 15px rgba(248, 203, 116, 0.2);
-  }
-  to {
-    text-shadow: 
-      0 0 10px rgba(248, 203, 116, 0.8),
-      0 0 20px rgba(248, 203, 116, 0.6),
-      0 0 30px rgba(248, 203, 116, 0.4),
-      0 0 40px rgba(248, 203, 116, 0.2);
-  }
-}
-
-/* 懸浮粒子效果增強 */
-.particle-enhanced {
-  position: relative;
-  overflow: hidden;
-}
-
-.particle-enhanced::before {
-  content: "";
-  position: absolute;
-  width: 300%;
-  height: 300%;
-  background-image: 
-    radial-gradient(2px 2px at 20px 30px, rgba(248, 203, 116, 0.3), transparent),
-    radial-gradient(2px 2px at 40px 70px, rgba(74, 71, 163, 0.3), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(248, 203, 116, 0.4), transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(74, 71, 163, 0.4), transparent);
-  background-repeat: repeat;
-  background-size: 150px 150px;
-  animation: particle-float 20s linear infinite;
-  opacity: 0.6;
-}
-
-@keyframes particle-float {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-150px, -150px, 0); }
-}
-
-/* 液體按鈕效果 */
-.liquid-button {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-capsule);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-  transition: all 0.3s ease;
-}
-
-.liquid-button::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-  transition: all 0.5s ease;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-}
-
-.liquid-button:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.liquid-button:active::before {
-  width: 0;
-  height: 0;
-  transition: all 0.1s ease;
-}
 @media (max-width: 768px) {
   .name-container {
     gap: var(--spacing-lg);
@@ -1778,7 +1572,7 @@ body {
     align-items: center;
   }
   
-  .cta-primary,
+  
   .cta-secondary {
     width: 100%;
     justify-content: center;
@@ -1802,9 +1596,8 @@ body {
 
 /* 低功耗模式優化 */
 @media (prefers-reduced-motion: reduce) {
-  .animate-element,
-  .particle,
-  .mouse-follower {
+  
+  .particle {
     will-change: auto;
     transform: none;
   }
@@ -1823,23 +1616,8 @@ body {
 }
 
 /* 焦點指示器 */
-:focus-visible {
-  outline: 3px solid var(--color-accent);
-  outline-offset: 2px;
-}
 
 /* 螢幕閱讀器專用 */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
 
 /* ===========================================
    17. CONTACT SECTION REDESIGN

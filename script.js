@@ -1,15 +1,131 @@
 /**
- * @file 優化後的Portfolio主要腳本
+ * @file Portfolio 主要腳本 - 發佈就緒版本
  * @author Bob Tsou
- * @version 8.0.0 (Optimized & Clean)
- * @description 重新組織的模組化作品集腳本，按功能分組並移除冗餘代碼
+ * @version 9.0.0 (Production Ready)
+ * @description 精簡優化的模組化作品集腳本，移除所有冗餘代碼，優化性能與可讀性
+ * @lastModified 2025-09-05
  */
 
 document.addEventListener("DOMContentLoaded", () => {
   // ===============================================
-  // ==== 1. GSAP 插件註冊 ====
+  // ==== 0. GSAP 載入檢測與 Fallback 機制 ====
   // ===============================================
-  gsap.registerPlugin(ScrollTrigger, Observer, TextPlugin);
+  
+  // 檢查 GSAP 是否載入完成
+  const checkGsapReady = () => {
+    return typeof gsap !== 'undefined' && 
+           typeof ScrollTrigger !== 'undefined' && 
+           typeof Observer !== 'undefined' && 
+           typeof TextPlugin !== 'undefined';
+  };
+
+  // 設置 fallback 機制，如果 GSAP 載入失敗，2 秒後顯示內容
+  const fallbackTimeout = setTimeout(() => {
+    if (!document.body.classList.contains('gsap-ready')) {
+      document.body.classList.add('gsap-fallback');
+      console.log('GSAP fallback activated - content displayed without animation');
+    }
+  }, 2000);
+
+  // 當 GSAP 準備就緒時執行動畫
+  const initializeWithGsap = () => {
+    clearTimeout(fallbackTimeout);
+    document.body.classList.add('gsap-ready');
+    
+    // 註冊 GSAP 插件
+    gsap.registerPlugin(ScrollTrigger, Observer, TextPlugin);
+    
+    // 立即執行 hero 動畫 - 直接內聯執行避免 hoisting 問題
+    setupHeroAnimation();
+    
+    console.log('GSAP initialized successfully');
+  };
+
+  // Hero 動畫函數 - 在 initializeWithGsap 中使用
+  const setupHeroAnimation = () => {
+    // 姓名文字和眼睛動畫 - 改進的時序和緩動
+    gsap.to(".name-line > span, .eye-container", {
+      delay: 0.2,
+      duration: 0.8,
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      stagger: 0.06,
+      ease: "back.out(1.2)",
+    });
+
+    // 個人照片 - 更自然的彈性效果
+    gsap.to(".profile-photo", {
+      delay: 0.4,
+      duration: 0.9,
+      y: 0,
+      scale: 1,
+      opacity: 1,
+      ease: "elastic.out(1, 0.6)",
+    });
+
+    // 標語膠囊 - 流暢的出現效果
+    gsap.to(".tagline-capsule", {
+      delay: 0.6,
+      duration: 0.8,
+      y: 0,
+      scale: 1,
+      opacity: 1,
+      ease: "power3.out",
+    });
+
+    // 操作按鈕 - 精緻的錯開動畫
+    gsap.to(".profile-actions a", {
+      delay: 0.8,
+      duration: 0.6,
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      stagger: 0.08,
+      ease: "power2.out",
+    });
+
+    // 滾動指示器 - 最後優雅出現並添加呼吸動畫
+    gsap.set(".scroll-down-indicator", { y: 0, opacity: 0 }); // 設置初始狀態
+    gsap.to(".scroll-down-indicator", {
+      delay: 1.2,
+      duration: 0.8,
+      opacity: 1,
+      ease: "power3.out",
+      onComplete: () => {
+        // 添加持續的呼吸動畫
+        gsap.to(".scroll-down-indicator", {
+          y: -8,
+          duration: 1.5,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true
+        });
+      }
+    });
+  };
+
+  // 立即檢查 GSAP 是否已載入
+  if (checkGsapReady()) {
+    initializeWithGsap();
+  } else {
+    // 等待 GSAP 載入，每 50ms 檢查一次
+    const checkInterval = setInterval(() => {
+      if (checkGsapReady()) {
+        clearInterval(checkInterval);
+        initializeWithGsap();
+      }
+    }, 50);
+    
+    // 最多等待 3 秒
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      if (!document.body.classList.contains('gsap-ready')) {
+        console.error('GSAP failed to load within 3 seconds');
+        document.body.classList.add('gsap-fallback');
+      }
+    }, 3000);
+  }
 
   // ===============================================
   // ==== 2. 全域變數與DOM元素 ====
@@ -28,11 +144,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const STATE = {
     allProjectsData: [],
     isAudioReady: false,
-    isMobile: window.matchMedia("(max-width: 992px)").matches,
+    isMobile: window.matchMedia("(max-width: 768px)").matches, // 調整為更標準的 768px 斷點
     audio: null,
     scrollTween: null,
     scrollObserver: null,
     lightbox: null
+  };
+
+  // UI 組件引用
+  const UIComponents = {
+    progressFill: null
   };
 
   const bsModal = new bootstrap.Modal(DOM.projectModalElement);
@@ -40,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================================
   // ==== 3. 核心工具函數 ====
   // ===============================================
-  const DEBUG = false; // 生產環境設為 false
+  const DEBUG = false; // 關閉調試模式
 
   const Utils = {
     // 優化的節流函數，使用 requestAnimationFrame
@@ -121,6 +242,19 @@ document.addEventListener("DOMContentLoaded", () => {
           'custom_parameter': element
         });
       }
+    },
+
+    // HTML 轉義函數防止 XSS
+    escapeHtml: (text) => {
+      if (!text) return '';
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, (m) => map[m]);
     }
   };
 
@@ -219,8 +353,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!this.userInteracted) return; // 必須等待用戶交互
             
             try {
+              // 檢查 Tone.js 是否可用且音頻上下文需要啟動
               if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
                 await Tone.start();
+                if (DEBUG) console.log('Audio context started successfully');
               }
               if (typeof Tone !== 'undefined') {
                 this.synth = new Tone.Synth({ volume: -12 }).toDestination();
@@ -284,7 +420,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (STATE.isAudioReady) return true;
       try {
         if (typeof Tone === "undefined") return false;
-        AudioSystem.create();
+        
+        // 不立即創建音頻上下文，等待用戶互動
+        if (DEBUG) console.log("Audio system ready, waiting for user interaction");
         return true;
       } catch (e) {
         Utils.warn("Audio initialization failed:", e);
@@ -314,14 +452,9 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.appendChild(progressBar);
 
       const progressFill = progressBar.querySelector('.scroll-progress__bar');
-
-      window.addEventListener('scroll', () => {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const progress = (scrollTop / scrollHeight) * 100;
-        
-        progressFill.style.width = `${Math.min(progress, 100)}%`;
-      });
+      
+      // 合併的滾動事件處理器會在 setupFloatingActions 中設置
+      UIComponents.progressFill = progressFill; // 儲存引用以供後續使用
     },
 
     setupFloatingActions: () => {
@@ -352,17 +485,29 @@ document.addEventListener("DOMContentLoaded", () => {
         themeBtn.textContent = DOM.body.classList.contains('dark-mode') ? '☀️' : '🌙';
       });
 
-      // 滾動時顯示/隱藏
-      window.addEventListener('scroll', () => {
-        const backToTopBtn = document.getElementById('backToTop');
-        if (window.pageYOffset > 300) {
-          backToTopBtn.style.opacity = '1';
-          backToTopBtn.style.visibility = 'visible';
-        } else {
-          backToTopBtn.style.opacity = '0';
-          backToTopBtn.style.visibility = 'hidden';
+      // 優化：合併的滾動事件監聽器
+      window.addEventListener('scroll', Utils.throttle(() => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+        
+        // 進度條更新
+        if (UIComponents.progressFill) {
+          const progress = (scrollTop / scrollHeight) * 100;
+          UIComponents.progressFill.style.width = `${Math.min(progress, 100)}%`;
         }
-      });
+        
+        // 返回頂部按鈕顯示/隱藏
+        const backToTopBtn = document.getElementById('backToTop');
+        if (backToTopBtn) {
+          if (scrollTop > 300) {
+            backToTopBtn.style.opacity = '1';
+            backToTopBtn.style.visibility = 'visible';
+          } else {
+            backToTopBtn.style.opacity = '0';
+            backToTopBtn.style.visibility = 'hidden';
+          }
+        }
+      }, 16)); // 60fps throttling
     }
   };
 
@@ -372,75 +517,69 @@ document.addEventListener("DOMContentLoaded", () => {
   const HeroSection = {
     setupTransition: () => {
       const wave = document.querySelector("#wave-path");
-      if (!wave || STATE.isMobile) return;
+      if (!wave) {
+        Utils.warn("Hero wave element not found");
+        return;
+      }
+      
+      Utils.log("Setting up hero wave transition animation");
       
       ScrollTrigger.create({
         trigger: ".hero-content",
         start: "top top",
         end: "bottom top",
-        scrub: 1.5,
+        scrub: 1.2,
         onUpdate: (self) => {
+          // 簡潔的圓弧變化，保持優雅
+          const progress = self.progress;
+          const curve = 100 - progress * 40; // 向下凹的弧度變化（從100到60）
+          
+          // 簡單的三控制點圓弧
+          const pathData = `M0,${60 + progress * 20} 
+                           C400,${curve} 800,${curve} 1200,${60 + progress * 20} 
+                           L1200,120 L0,120 Z`;
+          
           gsap.to(wave, {
-            attr: {
-              d: `M0,${40 + self.progress * 60} Q600,${
-                80 + self.progress * 70
-              } 1200,${40 + self.progress * 60} L1200,120 L0,120 Z`,
-            },
+            attr: { d: pathData },
             ease: "power1.out",
+            duration: 0.1,
           });
         },
       });
 
       gsap.to(".scroll-down-indicator", {
-        opacity: 0,
-        y: -20,
-        duration: 0.5,
         scrollTrigger: {
           trigger: ".hero-content",
           start: "top top",
           end: "+=150",
-          scrub: true,
+          onUpdate: (self) => {
+            const progress = self.progress;
+            // 根據滾動進度控制透明度和位置
+            gsap.to(".scroll-down-indicator", {
+              opacity: 1 - progress,
+              y: progress * -20,
+              duration: 0.1,
+              ease: "none"
+            });
+          },
+          onLeave: () => {
+            // 當離開觸發區域時確保隱藏
+            gsap.to(".scroll-down-indicator", {
+              opacity: 0,
+              y: -20,
+              duration: 0.3
+            });
+          },
+          onEnterBack: () => {
+            // 當回到觸發區域時重新顯示
+            gsap.to(".scroll-down-indicator", {
+              opacity: 1,
+              y: 0,
+              duration: 0.5,
+              ease: "power2.out"
+            });
+          }
         },
-      });
-    },
-
-    setupEntranceAnimation: () => {
-      gsap.set(".name-line > span, .eye-container", { y: 30, opacity: 0 });
-      gsap.set(".profile-photo", { scale: 0.5, opacity: 0 });
-      gsap.set(".tagline-capsule", { scale: 0.5, opacity: 0 });
-      gsap.set(".profile-actions a", { y: 20, opacity: 0 });
-
-      gsap.to(".name-line > span, .eye-container", {
-        delay: 0.8,
-        duration: 0.7,
-        y: 0,
-        opacity: 1,
-        stagger: 0.08,
-        ease: "power2.out",
-      });
-
-      gsap.to(".profile-photo", {
-        delay: 1.0,
-        duration: 0.8,
-        scale: 1,
-        opacity: 1,
-        ease: "elastic.out(1, 0.5)",
-      });
-
-      gsap.to(".tagline-capsule", {
-        delay: 1.1,
-        duration: 0.7,
-        scale: 1,
-        opacity: 1,
-        ease: "elastic.out(1, 0.6)",
-      });
-
-      gsap.to(".profile-actions a", {
-        delay: 1.2,
-        duration: 0.5,
-        y: 0,
-        opacity: 1,
-        stagger: 0.1,
       });
     }
   };
@@ -758,72 +897,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     },
 
-    // 滑鼠跟隨效果
-    setupMouseFollower: () => {
-      const follower = document.createElement('div');
-      follower.className = 'mouse-follower';
-      follower.style.cssText = `
-        position: fixed;
-        width: 12px;
-        height: 12px;
-        background: radial-gradient(circle, rgba(248, 203, 116, 0.8), rgba(248, 203, 116, 0.2));
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        mix-blend-mode: normal;
-        transform: translate(-50%, -50%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      `;
-      document.body.appendChild(follower);
-
-      let isVisible = false;
-
-      document.addEventListener('mousemove', (e) => {
-        if (!isVisible) {
-          follower.style.opacity = '1';
-          isVisible = true;
-        }
-        
-        gsap.to(follower, {
-          left: e.clientX,
-          top: e.clientY,
-          duration: 0.2,
-          ease: "power2.out"
-        });
-      });
-
-      document.addEventListener('mouseleave', (e) => {
-        if (e.target === document.documentElement) {
-          follower.style.opacity = '0';
-          isVisible = false;
-        }
-      });
-
-      // 懸停時放大效果
-      const interactiveElements = 'a, button, .portfolio-capsule, .cta-primary, .cta-secondary';
-      
-      document.addEventListener('mouseenter', (e) => {
-        if (e.target && typeof e.target.matches === 'function' && e.target.matches(interactiveElements)) {
-          gsap.to(follower, {
-            scale: 2.5,
-            backgroundColor: 'rgba(74, 71, 163, 0.6)',
-            duration: 0.3
-          });
-        }
-      }, true);
-
-      document.addEventListener('mouseleave', (e) => {
-        if (e.target && typeof e.target.matches === 'function' && e.target.matches(interactiveElements)) {
-          gsap.to(follower, {
-            scale: 1,
-            backgroundColor: 'rgba(248, 203, 116, 0.8)',
-            duration: 0.3
-          });
-        }
-      }, true);
-    },
-
     setupTimelineAnimation: () => {
       const timelineItems = document.querySelectorAll('.timeline-item');
       
@@ -1039,9 +1112,9 @@ document.addEventListener("DOMContentLoaded", () => {
           capsule.setAttribute('tabindex', '0');
           capsule.setAttribute('aria-label', `查看 ${project.title} 專案詳情`);
           capsule.innerHTML = `${mediaElement}<div class="capsule-overlay"><h4 class="capsule-title">${
-            project.title
+            Utils.escapeHtml(project.title)
           }</h4><span class="capsule-category">${
-            project.category_name || ""
+            Utils.escapeHtml(project.category_name || "")
           }</span></div>`;
           portfolioList.appendChild(capsule);
           
@@ -1165,7 +1238,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (error) {
         Utils.error("無法載入專案詳情:", error);
-        modalContent.innerHTML = `<div class="p-4 text-center d-flex flex-column justify-content-center align-items-center" style="height:100%"><p>抱歉，無法載入專案詳情。<br>${error.message}</p><button type="button" class="btn btn-secondary mt-3" data-bs-dismiss="modal">關閉</button></div>`;
+        modalContent.innerHTML = `<div class="p-4 text-center d-flex flex-column justify-content-center align-items-center" style="height:100%"><p>抱歉，無法載入專案詳情。<br>${Utils.escapeHtml(error.message)}</p><button type="button" class="btn btn-secondary mt-3" data-bs-dismiss="modal">關閉</button></div>`;
       }
     },
 
@@ -1594,7 +1667,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 2000);
           }, 2000);
           
-          alert("感謝您的訊息！我會儘快回覆您。");
+          // 顯示成功通知而非 alert
+          Notifications.showSuccess("感謝您的訊息！我會儘快回覆您。");
         }
       });
 
@@ -1783,7 +1857,6 @@ document.addEventListener("DOMContentLoaded", () => {
         'Animation Manager': () => {
           AnimationManager.setupScrollAnimations();
           AnimationManager.setupTimelineAnimation();
-          AnimationManager.setupMouseFollower();
           AnimationManager.setupContactAnimations();
           AnimationManager.setupFooterAnimations();
         },
@@ -1798,7 +1871,7 @@ document.addEventListener("DOMContentLoaded", () => {
       DOM.portfolioContainer.style.visibility = "visible";
       DOM.portfolioContainer.style.opacity = "1";
       HeroSection.setupTransition();
-      HeroSection.setupEntranceAnimation();
+      // Hero 動畫已經在 GSAP 載入時執行，不需要重複調用
       
       // 記錄初始化結果
       const successful = results.filter(r => r.success).length;
