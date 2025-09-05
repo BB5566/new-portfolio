@@ -1,44 +1,5 @@
 /* ===============================================
-   1. 字體定義
-   =============================================== */
-@font-face {
-  font-family: "LINESeedTW";
-  src: url("./fonts/LINESeedTW_OTF_Rg.woff2") format("woff2"),
-    url("./fonts/LINESeedTW_OTF_Rg.woff") format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "LINESeedTW";
-  src: url("./fonts/LINESeedTW_OTF_Th.woff2") format("woff2"),
-    url("./fonts/LINESeedTW_OTF_Th.woff") format("woff");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "LINESeedTW";
-  src: url("./fonts/LINESeedTW_OTF_Bd.woff2") format("woff2"),
-    url("./fonts/LINESeedTW_OTF_Bd.woff") format("woff");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "LINESeedTW";
-  src: url("./fonts/LINESeedTW_OTF_Eb.woff2") format("woff2"),
-    url("./fonts/LINESeedTW_OTF_Eb.woff") format("woff");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* ===============================================
-   2. CSS 變數與主題系統
+   1. CSS 變數與主題系統
    =============================================== */
 :root {
   /* 顏色系統 */
@@ -130,11 +91,10 @@ html {
 html,
 body {
   height: 100%;
-  font-family: "LINESeedTW", "Montserrat", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
   background-color: var(--color-bg);
   color: var(--color-text);
-  cursor: none;
   overflow-x: hidden;
   overflow-y: hidden;
   line-height: 1.7;
@@ -155,18 +115,6 @@ body {
 
 body.loaded {
   overflow-y: auto !important;
-}
-
-/* 無游標元素 */
-a,
-button,
-.accordion-header,
-.portfolio-capsule,
-.name-container,
-.eye-container,
-.glightbox,
-.filmstrip-capsule {
-  cursor: none;
 }
 
 /* 鏈接樣式 */
@@ -191,43 +139,6 @@ video {
 /* ===============================================
    4. 基礎佈局
    =============================================== */
-
-/* ===============================================
-   5. 自定義游標
-   =============================================== */
-.cursor-dot,
-.cursor-dot-outline {
-  pointer-events: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  border-radius: 50%;
-  z-index: 10002;
-  transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease,
-    backdrop-filter 0.3s ease;
-}
-
-.cursor-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--color-accent);
-  transform: translate(-50%, -50%);
-}
-
-.cursor-dot-outline {
-  width: 30px;
-  height: 30px;
-  background-color: rgba(74, 71, 163, 0.2);
-  transform: translate(-50%, -50%);
-  backdrop-filter: blur(1px);
-}
-
-.cursor-dot-outline.hovered {
-  width: 60px;
-  height: 60px;
-  background-color: rgba(74, 71, 163, 0.3);
-  backdrop-filter: blur(2px);
-}
 
 /* ===============================================
    6. 主容器
@@ -734,22 +645,6 @@ video {
   margin: var(--spacing-sm) 0 var(--spacing-sm) var(--spacing-lg);
 }
 
-.accordion-collapse {
-  display: grid;
-  grid-template-rows: 0fr; /* 預設收合 */
-  transition: grid-template-rows 0.5s ease-in-out;
-  overflow: hidden;
-}
-
-.accordion-collapse.show {
-  grid-template-rows: 1fr; /* 展開 */
-}
-
-/* 確保 grid 動畫正常運作的關鍵 */
-.accordion-collapse > .accordion-body {
-    min-height: 0;
-}
-
 body {
   counter-reset: section;
 }
@@ -907,14 +802,7 @@ body {
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
-.timeline-item.animate-in {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
-}
 
-.timeline-item.fade-in {
-  opacity: 0.3;
-}
 
 .timeline-item::before {
   content: "";
@@ -1031,18 +919,20 @@ body {
 
 .portfolio-scroller {
   position: relative;
-  overflow: hidden;
   margin-bottom: var(--spacing-lg);
 }
 
 .portfolio-list {
-  display: flex;
-  gap: var(--spacing-md);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
   transition: opacity 0.4s ease;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
 }
 
 .portfolio-capsule {
-  flex: 0 0 300px;
   background: var(--color-surface);
   border-radius: var(--radius-base);
   overflow: hidden;
@@ -1050,6 +940,7 @@ body {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: pointer;
   position: relative;
+  aspect-ratio: 4/3;
 }
 
 .portfolio-capsule::before {
@@ -1113,39 +1004,10 @@ body {
   opacity: 0.8;
 }
 
-.scroller-nav {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
-}
-
-.nav-btn {
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition-base);
-  cursor: pointer;
-}
-
-.nav-btn:hover {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  transform: scale(1.1);
-}
-
 /* ===============================================
    11. 聯絡區塊
    =============================================== */
-.contact-form {
-  max-width: 600px;
-  margin: 0 auto;
-}
+
 
 .form-group {
   margin-bottom: var(--spacing-md);
@@ -1158,63 +1020,7 @@ body {
   color: var(--color-text);
 }
 
-/* ===============================================
-   12. 通知系統
-   =============================================== */
-.notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 10003;
-  max-width: 400px;
-  border-radius: var(--radius-base);
-  box-shadow: var(--shadow-elevated);
-  animation: slideInRight 0.3s ease;
-}
 
-.notification--error {
-  background: #fee;
-  border-left: 4px solid #dc3545;
-  color: #721c24;
-}
-
-.notification--success {
-  background: #efe;
-  border-left: 4px solid #28a745;
-  color: #155724;
-}
-
-.notification__content {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-}
-
-.notification__close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  margin-left: auto;
-  opacity: 0.5;
-  transition: opacity 0.2s;
-}
-
-.notification__close:hover {
-  opacity: 1;
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
 
 /* ===============================================
    13. 滾動進度條
@@ -1273,21 +1079,7 @@ body {
   box-shadow: var(--shadow-primary);
 }
 
-.floating-btn--pulse {
-  animation: pulse 2s infinite;
-}
 
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
 
 /* ===============================================
    15. 模態框樣式
@@ -1377,24 +1169,7 @@ body {
   right: 10px;
 }
 
-.stage-fit-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: var(--transition-base);
-}
 
-.stage-fit-toggle:hover {
-  background: rgba(0, 0, 0, 0.8);
-}
 
 .stage-caption {
   position: absolute;
@@ -1542,6 +1317,14 @@ body {
 
 /* 磨砂玻璃效果卡片 */
 
+/* 平板響應式設計 */
+@media (max-width: 992px) and (min-width: 769px) {
+  .portfolio-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+}
+
 @media (max-width: 768px) {
   .name-container {
     gap: var(--spacing-lg);
@@ -1568,14 +1351,14 @@ body {
   }
 
   .portfolio-list {
-    flex-direction: column;
-    align-items: center;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+    padding: 0 var(--spacing-sm);
   }
 
   .portfolio-capsule {
-    flex: none;
-    width: 100%;
-    max-width: 400px;
+    max-width: 100%;
+    aspect-ratio: 16/10;
   }
 
   .interactive-showcase {
@@ -2332,6 +2115,50 @@ body {
   .quick-links {
     justify-content: flex-start;
   }
+
+  .footer-social {
+    justify-content: flex-start;
+  }
+
+  .footer-bottom-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .made-with {
+    border-right: none;
+    padding-right: 0;
+  }
+}
+
+/* 模態框載入動畫 */
+.modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1rem;
+}
+
+.modal-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.modal-loading .loading-text {
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
 
   .footer-social {
     justify-content: flex-start;

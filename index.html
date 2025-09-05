@@ -86,9 +86,6 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body class="light-mode">
-    <div class="cursor-dot-outline"></div>
-    <div class="cursor-dot"></div>
-
     <div class="portfolio-container">
       <header class="hero-content">
         <div class="particles-container"></div>
@@ -330,10 +327,6 @@
                 <div id="portfolio-filters" class="portfolio-filters"></div>
                 <div class="portfolio-scroller">
                   <div class="portfolio-list"></div>
-                </div>
-                <div class="scroller-nav">
-                  <button class="nav-btn prev-btn">&lt;</button
-                  ><button class="nav-btn next-btn">&gt;</button>
                 </div>
               </div>
             </div>
@@ -740,7 +733,7 @@
       </footer>
     </div>
 
-    <div class="modal fade" id="projectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="projectModal" tabindex="-1">
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content"></div>
       </div>
@@ -757,14 +750,13 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Observer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 
     <!-- 錯誤監控腳本 - 在主腳本之前載入 -->
     <script src="error-monitor.js"></script>
+    
     <script src="script.js"></script>
   </body>
 </html>

@@ -24,7 +24,8 @@ class PortfolioErrorMonitor {
     // 全域錯誤捕獲
     this.setupGlobalErrorHandler();
     
-    console.log('🛡️ Portfolio Error Monitor initialized');
+    // 移除開發環境日誌
+    // console.log('🛡️ Portfolio Error Monitor initialized');
   }
 
   monitorGSAPErrors() {
