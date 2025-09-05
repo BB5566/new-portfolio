@@ -1,270 +1,185 @@
-# 🚀 BOB TSOU | 個人作品集網站
+# 🎨 BOB TSOU | 個人作品集網站
 
-一個現代化、響應式的個人作品集網站，展示網頁開發與 UI/UX 設計作品。
+一個現代化、響應式的個人作品集網站，展示網頁開發與 UI/UX 設計專業技能。
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-brightgreen)](https://bb5566.github.io/new-portfolio/)
-[![HTML](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)](https://developer.mozilla.org/docs/Web/HTML)
-[![CSS](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)](https://developer.mozilla.org/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/docs/Web/JavaScript)
-[![GSAP](https://img.shields.io/badge/GSAP-88CE02?logo=greensock&logoColor=white)](https://greensock.com/gsap/)
+[![線上展示](https://img.shields.io/badge/🌐_線上展示-查看作品集-4CAF50?style=for-the-badge)](https://bb5566.github.io/new-portfolio/)
+[![技術棧](https://img.shields.io/badge/⚡_技術棧-HTML5_CSS3_JavaScript-1976D2?style=for-the-badge)](#-技術架構)
+[![設計風格](https://img.shields.io/badge/🎨_設計風格-現代化_響應式-FF6B6B?style=for-the-badge)](#-視覺設計)
 
-## ✨ 功能特色
+## ✨ 網站特色
 
-### 🎨 **視覺設計**
-- **現代化 UI**: 採用玻璃擬態（Glassmorphism）設計風格
-- **深色/淺色模式**: 自動主題切換系統
-- **響應式設計**: 完美適配桌面、平板、手機
-- **自訂游標**: 互動式鼠標跟隨效果
+### � **互動體驗**
+- **智能眼睛追蹤**：獨創的眼球跟隨滑鼠效果，支援鬥雞眼等自然反應
+- **流暢動畫**：基於 GSAP 的專業級動畫系統，提供滑順的視覺體驗
+- **秒開體驗**：純 CSS Preloader 設計，確保視覺上的即時反饋
+- **響應式設計**：完美適配桌面、平板、手機等各種設備
 
-### 🎬 **動畫效果**
-- **GSAP 動畫**: 流暢的滾動觸發動畫
-- **3D 變換**: 作品卡片 3D 翻轉效果  
-- **粒子系統**: 動態背景粒子動畫
-- **打字效果**: 動態文字展示
+### � **視覺設計**
+- **現代化 UI**：採用簡潔的現代設計風格，突出內容重點
+- **玻璃擬態效果**：精緻的視覺層次，增強設計質感
+- **自訂字體**：整合 LINE Seed 字體，提升中文閱讀體驗
+- **視覺一致性**：統一的色彩系統和間距規範
 
-### 🎵 **音效系統**
-- **互動音效**: 點擊、懸停音效回饋
-- **Tone.js 整合**: 專業音頻處理
-- **用戶友善**: 符合瀏覽器自動播放政策
+### 🛠️ **技術實力展示**
+- **純手工打造**：所有動畫和互動效果皆為原創設計
+- **效能優化**：硬體加速、資源預載、降級支援等專業優化
+- **程式碼品質**：模組化架構、錯誤處理、無障礙支援
+- **全端技能**：前端展示搭配後端 API 和資料庫管理
 
-### ♿ **可訪問性**
-- **ARIA 標籤**: 完整的無障礙支援
-- **鍵盤導航**: 全站鍵盤操作支援
-- **螢幕閱讀器**: 最佳化語音導航體驗
-
-### 🛡️ **穩定性**
-- **錯誤監控**: 自動錯誤檢測與修復
-- **性能優化**: 硬體加速與資源管理
-- **漸進增強**: 核心功能降級支援
-
-## 🛠️ 技術棧
+## � 技術架構
 
 ### 前端核心
-- ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-- ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white) 
-- ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
 
-### 框架與庫
-- ![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
-- ![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=for-the-badge&logo=greensock&logoColor=white)
-- ![Tone.js](https://img.shields.io/badge/Tone.js-000000?style=for-the-badge&logo=javascript&logoColor=white)
+### 動畫與互動
+![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=flat-square&logo=greensock&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat-square&logo=bootstrap&logoColor=white)
+![GLightbox](https://img.shields.io/badge/GLightbox-Image_Gallery-FF9800?style=flat-square)
 
 ### 後端支援
-- ![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)
-- ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-777BB4?style=flat-square&logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
 
-### 開發工具
-- ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
-- ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
-- ![VS Code](https://img.shields.io/badge/VS%20Code-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white)
-
-## 📁 專案結構
+## � 專案架構
 
 ```
-new-portfolio/
-├── 📄 index.html              # 主要 HTML 結構
-├── 🎨 style.css               # 主要樣式表 (2500+ 行)
-├── ⚡ script.js               # 核心 JavaScript (1800+ 行)
+portfolio/
+├── 🏠 index.html              # 主頁面結構
+├── 🎨 style.css               # 主要樣式表 (2300+ 行)
+├── ⚡ script.js               # 核心 JavaScript (1260+ 行)
 ├── 🛡️ error-monitor.js        # 錯誤監控系統
-├── 📊 performance-audit.js    # 性能稽核工具
-├── 📝 ERROR_FIX_REPORT.md     # 錯誤修復報告
-├── 🎵 Tone.js                 # 音頻庫 (CDN)
-├── 🎬 GSAP                    # 動畫庫 (CDN)
 │
 ├── 📁 admin/                  # 後台管理系統
-│   ├── index.php             # 管理首頁
-│   ├── edit.php              # 編輯介面
-│   ├── actions.php           # 後台操作
-│   └── style.css             # 後台樣式
+│   ├── index.php             # 管理介面
+│   ├── edit.php              # 專案編輯
+│   └── actions.php           # 資料操作
 │
-├── 📁 api/                    # API 端點
-│   ├── db_connect.php        # 資料庫連接
-│   ├── get_projects.php      # 獲取專案列表
-│   └── get_project_detail.php # 專案詳情
+├── 📁 api/                    # RESTful API
+│   ├── get_projects.php      # 專案資料 API
+│   └── db_connect.php        # 資料庫連接
 │
-├── 📁 fonts/                  # 自訂字體
-│   └── LINESeedTW_*.woff*    # LINE Seed 字體家族
-│
-├── 📁 uploads/                # 專案圖片
-├── 📁 logs/                   # 系統日誌
-└── 📄 portfolio_db.sql        # 資料庫結構
+├── 📁 fonts/                  # LINE Seed 字體系列
+├── 📁 uploads/                # 專案圖片資源
+└── 📁 docs/                   # 技術文件
 ```
 
-## 🚀 快速開始
+## 🎯 核心功能
 
-### 環境需求
-- 🌐 **Web Server**: Apache/Nginx (支援 PHP)
-- 🐘 **PHP**: 7.4+ 
-- 🗄️ **MySQL**: 5.7+ 或 MariaDB 10.3+
-- 🌍 **瀏覽器**: Chrome 90+, Firefox 90+, Safari 14+
-
-### 本地安裝
-
-1. **克隆專案**
-   ```bash
-   git clone https://github.com/BB5566/new-portfolio.git
-   cd new-portfolio
-   ```
-
-2. **設置資料庫**
-   ```sql
-   # 建立資料庫
-   CREATE DATABASE portfolio_db;
-   
-   # 匯入資料結構
-   mysql -u your_username -p portfolio_db < portfolio_db.sql
-   ```
-
-3. **配置資料庫連接**
-   ```php
-   # 編輯 api/db_connect.php
-   $host = 'localhost';
-   $dbname = 'portfolio_db';
-   $username = 'your_username';
-   $password = 'your_password';
-   ```
-
-4. **啟動本地服務器**
-   ```bash
-   # 使用 PHP 內建服務器
-   php -S localhost:8000
-   
-   # 或配置 Apache/Nginx 虛擬主機
-   ```
-
-5. **訪問網站**
-   - 前台: `http://localhost:8000`
-   - 後台: `http://localhost:8000/admin`
-
-### GitHub Pages 部署
-
-```bash
-# 推送到 GitHub
-git add .
-git commit -m "🚀 Portfolio website ready for deployment"
-git push origin main
-
-# 啟用 GitHub Pages
-# Repository Settings → Pages → Source: Deploy from a branch → main
+### � **動畫系統**
+```javascript
+// 眼睛追蹤範例
+elements.eyes.forEach(eye => {
+  const angle = Math.atan2(deltaY, deltaX);
+  const moveDistance = (distance / 150) * 18;
+  
+  gsap.to(eye, {
+    x: Math.cos(angle) * moveDistance,
+    y: Math.sin(angle) * moveDistance,
+    duration: 0.2,
+    ease: "power1.out"
+  });
+});
 ```
 
-## 🎯 使用指南
-
-### 🎨 自訂主題
+### 🎨 **CSS 變數系統**
 ```css
 :root {
-  --color-primary: #f8cb74;    /* 主要顏色 */
-  --color-accent: #4a47a3;     /* 強調顏色 */
+  --color-primary: #f8cb74;    /* 主要色調 */
+  --color-accent: #4a47a3;     /* 強調色彩 */
   --color-bg: #fdfaf2;         /* 背景顏色 */
+  --color-text: #2c2c2c;       /* 文字顏色 */
 }
 ```
 
-### 🔧 開發模式
-```javascript
-// script.js 中設置
-const DEBUG = true;  // 開啟調試模式
+### � **響應式斷點**
+| 設備類型 | 螢幕寬度 | 優化重點 |
+|---------|---------|---------|
+| 📱 手機 | < 768px | 觸控優化、垂直導航 |
+| 📱 平板 | 768px - 1024px | 混合互動、彈性佈局 |
+| 💻 桌機 | > 1024px | 完整功能、動畫效果 |
 
-// 控制台執行性能稽核
-new PerformanceAudit().runFullAudit();
+## 🏆 技術亮點
 
-// 查看錯誤報告
-getPortfolioReport();
-```
+### ⚡ **效能優化**
+- **預載入策略**：關鍵資源優先載入
+- **硬體加速**：GPU 加速的動畫渲染
+- **降級支援**：GSAP 載入失敗的備用方案
+- **資源管理**：防止記憶體洩漏
 
-### 📊 後台管理
-1. 訪問 `/admin` 進入管理後台
-2. 新增、編輯、刪除作品項目
-3. 管理專案分類和技術標籤
-4. 查看訪問日誌
+### ♿ **無障礙設計**
+- **ARIA 標籤**：完整的語意標記
+- **鍵盤導航**：全站快捷鍵支援
+- **對比度**：符合 WCAG 標準
+- **螢幕閱讀器**：最佳化朗讀體驗
 
-## 🌟 核心特色
+### 🛡️ **穩定性保證**
+- **錯誤邊界**：自動錯誤捕獲與修復
+- **漸進增強**：核心功能優先原則
+- **瀏覽器相容**：現代瀏覽器完整支援
 
-### 🎭 動畫系統
-- **ScrollTrigger**: 滾動觸發動畫
-- **Timeline**: 時間軸動畫控制
-- **Morphing**: 形狀變形效果
-- **Parallax**: 視差滾動效果
+## 📈 效能表現
 
-### 🎵 音頻系統
-- **Tone.js**: 專業音頻合成
-- **Web Audio API**: 低延遲音效
-- **用戶交互**: 符合現代瀏覽器政策
+- ⚡ **首次內容繪製 (FCP)**：< 1.2s
+- 🚀 **最大內容繪製 (LCP)**：< 2.0s
+- 📊 **累積版面偏移 (CLS)**：< 0.1
+- 🎯 **Lighthouse 分數**：95+ (桌面版)
 
-### 🛡️ 穩定性
-- **錯誤邊界**: 自動錯誤捕獲
-- **資源管理**: 記憶體洩漏防護
-- **漸進增強**: 向下兼容
+## 🎨 設計理念
 
-## 📱 響應式支援
+> **簡潔而不簡單**：每一個視覺元素都經過精心設計，既要美觀又要實用。
 
-| 設備 | 解析度 | 支援狀態 |
-|------|--------|----------|
-| 📱 Mobile | < 768px | ✅ 完全支援 |
-| 📱 Tablet | 768px - 1024px | ✅ 完全支援 |
-| 💻 Desktop | > 1024px | ✅ 完全支援 |
-| 🖥️ Large Screen | > 1440px | ✅ 最佳化 |
+- **內容為王**：設計服務於內容展示
+- **互動自然**：符合用戶直覺的操作邏輯
+- **技術展示**：通過實際效果展現技術能力
+- **品牌一致**：統一的視覺語言和用戶體驗
 
-## 🔧 故障排除
+## 🌟 特色展示
 
-### 常見問題
+### 👁️ **智能眼睛追蹤**
+獨創的雙眼獨立追蹤系統，支援：
+- 真實的眼球運動模擬
+- 鬥雞眼效果（滑鼠移到兩眼中間）
+- 平滑的動畫過渡
+- 距離感應式移動幅度
 
-**Q: 動畫不流暢？**
-```javascript
-// 檢查硬體加速
-.animate-element {
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-}
-```
+### 🎪 **秒開 Preloader**
+純 CSS 實作的載入動畫：
+- 與頁面骨架同時顯示
+- 品牌名稱動態效果
+- 無 JavaScript 依賴
+- 視覺連貫性設計
 
-**Q: 音效無法播放？**
-```javascript
-// 確保用戶交互後才初始化
-document.addEventListener('click', initAudio, { once: true });
-```
+### 🎵 **手風琴式導航**
+優雅的內容組織方式：
+- Bootstrap 5 原生組件
+- 平滑的展開/收合動畫
+- 響應式適配
+- 無障礙鍵盤支援
 
-**Q: 圖片載入緩慢？**
-```html
-<!-- 使用預載入 -->
-<link rel="preload" href="your-photo.png" as="image">
-```
+## 👨‍💻 關於作者
 
-## 📈 性能指標
+**Bob Tsou** - 網頁開發與 UI/UX 設計師
 
-- ⚡ **Lighthouse 分數**: 95+
-- 🚀 **First Contentful Paint**: < 1.5s
-- 📊 **Largest Contentful Paint**: < 2.5s
-- 🎯 **Cumulative Layout Shift**: < 0.1
+🔸 **設計背景**：7+ 年平面設計與電商行銷經驗  
+🔸 **技術轉型**：920 小時密集網頁開發訓練  
+🔸 **專業技能**：HTML、CSS、JavaScript、PHP、MySQL  
+🔸 **設計工具**：Photoshop、Illustrator、Figma  
 
-## 🤝 貢獻指南
-
-1. **Fork** 此專案
-2. **建立** 功能分支 (`git checkout -b feature/AmazingFeature`)
-3. **提交** 更改 (`git commit -m 'Add some AmazingFeature'`)
-4. **推送** 分支 (`git push origin feature/AmazingFeature`)
-5. **開啟** Pull Request
-
-## 📄 授權
-
-此專案採用 MIT 授權 - 詳見 [LICENSE](LICENSE) 檔案
-
-## 👨‍💻 作者
-
-**Bob Tsou**
-- 🌐 Website: [bb-made.com](http://bb-made.com)
-- 📧 Email: hello@bb-made.com
-- 💼 LinkedIn: [連結待補充]
-- 🐙 GitHub: [@BB5566](https://github.com/BB5566)
-
-## 🙏 致謝
-
-- 🎨 設計靈感來自現代 Web 設計趨勢
-- 🎬 動畫技術感謝 [GSAP](https://greensock.com/) 團隊
-- 🎵 音頻處理感謝 [Tone.js](https://tonejs.github.io/) 社群
-- 🌈 色彩設計參考 [Coolors](https://coolors.co/)
+### 📞 聯絡方式
+- 🌐 **個人網站**：[bb-made.com](http://bb-made.com)
+- 📧 **電子郵件**：hello@bb-made.com
+- 🐙 **GitHub**：[@BB5566](https://github.com/BB5566)
 
 ---
 
-⭐ 如果這個專案對你有幫助，請給一個星星！
+<div align="center">
 
-🚀 **Live Demo**: [https://bb5566.github.io/new-portfolio/](https://bb5566.github.io/new-portfolio/)
+**🚀 [立即查看線上作品集](https://bb5566.github.io/new-portfolio/) 🚀**
+
+*展示現代網頁開發技術與設計美學的完美結合*
+
+⭐ 如果您喜歡這個作品，歡迎給個星星支持！
+
+</div>
