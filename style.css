@@ -114,13 +114,6 @@ body.dark-mode {
 
 /* 性能優化 - 為經常動畫的元素啟用硬體加速 */
 
-.contact-card,
-.particle {
-  will-change: transform;
-  contain: layout style paint;
-  transform: translate3d(0, 0, 0);
-}
-
 /* 基礎重置 */
 * {
   margin: 0;
@@ -145,6 +138,8 @@ body {
   overflow-x: hidden;
   overflow-y: hidden;
   line-height: 1.7;
+  /* 確保 viewport height 計算正確 */
+  position: relative;
 }
 
 /* 全域過渡效果 */
@@ -154,10 +149,8 @@ body {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  display: block; /* 改為 block，避免 flex 影響 viewport height 計算 */
+  width: 100%;
 }
 
 body.loaded {
@@ -263,7 +256,16 @@ video {
   position: relative;
   z-index: 10;
   overflow: hidden;
+  /* 使用更穩定的高度計算方法 */
+  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
+  min-height: 100dvh;
+  /* 強制設置正確的高度，避免 flex 容器影響 */
   height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  height: 100dvh;
+  /* 確保在任何情況下都不會小於視窗高度 */
+  box-sizing: border-box;
 }
 
 /* 添加動態背景漸變效果 */
@@ -299,19 +301,23 @@ video {
 
 .hero-shape {
   position: absolute;
-  bottom: -1px;
+  /* 關鍵：將容器向下移動 60px，剛好隱藏掉 SVG 的透明上半部 */
+  bottom: 0px; 
   left: 0;
   width: 100%;
   overflow: hidden;
   line-height: 0;
   color: var(--color-bg);
   z-index: 0;
+  /* 關鍵：保留 120px 高度，確保 SVG 內部圖形不會被壓扁變形 */
+  height: 120px;
 }
 
 .hero-shape svg {
   position: relative;
   display: block;
   width: 100%;
+  height: 100%;
 }
 
 .shape-fill {
@@ -729,16 +735,19 @@ video {
 }
 
 .accordion-collapse {
-  transition: max-height 0.5s ease-in-out;
+  display: grid;
+  grid-template-rows: 0fr; /* 預設收合 */
+  transition: grid-template-rows 0.5s ease-in-out;
   overflow: hidden;
 }
 
-.accordion-collapse:not(.show) {
-  max-height: 0;
+.accordion-collapse.show {
+  grid-template-rows: 1fr; /* 展開 */
 }
 
-.accordion-collapse.show {
-  max-height: 2500px;
+/* 確保 grid 動畫正常運作的關鍵 */
+.accordion-collapse > .accordion-body {
+    min-height: 0;
 }
 
 body {

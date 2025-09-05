@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewport Height Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #f8cb74, #ffd89b);
+        }
+        
+        .info-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .hero-test {
+            background: #4a47a3;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            overflow: hidden;
+            /* 使用與主頁面相同的高度設定 */
+            height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
+            height: 100dvh;
+            min-height: 100vh;
+            min-height: calc(var(--vh, 1vh) * 100);
+            min-height: 100dvh;
+        }
+        
+        .hero-shape-test {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            color: white;
+            z-index: 0;
+            height: 120px;
+        }
+        
+        .hero-shape-test svg {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+        
+        .shape-fill-test {
+            fill: currentColor;
+            width: 100%;
+        }
+        
+        .height-values {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .height-item {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h2>Viewport Height 測試頁面</h2>
+        <p>這個頁面用來測試 viewport height 修正是否正常工作</p>
+        <div class="height-values">
+            <div class="height-item">
+                <strong>Window Inner Height:</strong><br>
+                <span id="window-height">--</span>px
+            </div>
+            <div class="height-item">
+                <strong>CSS --vh Variable:</strong><br>
+                <span id="vh-variable">--</span>px
+            </div>
+            <div class="height-item">
+                <strong>Hero Element Height:</strong><br>
+                <span id="hero-height">--</span>px
+            </div>
+        </div>
+        <p style="margin-top: 15px;">
+            <strong>指示：</strong>在手機上測試時，請注意滾動前後這些數值是否保持一致
+        </p>
+    </div>
+    
+    <div class="hero-test">
+        <div style="position: relative; z-index: 1;">
+            <h1>Hero 區域測試</h1>
+            <p>這個區域應該始終保持 100vh 的高度</p>
+            <p>即使在手機瀏覽器位址欄隱藏後也不會改變</p>
+            <p>注意底部的波浪形狀是否保持一致</p>
+        </div>
+        
+        <!-- 添加波浪形狀測試 -->
+        <div class="hero-shape-test">
+            <svg
+                data-name="Layer 1"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+            >
+                <path
+                    d="M0,40 Q600,80 1200,40 L1200,120 L0,120 Z"
+                    class="shape-fill-test"
+                ></path>
+            </svg>
+        </div>
+    </div>
+
+    <script>
+        // Viewport height 修正函數 (簡化版)
+        const fixViewportHeight = () => {
+            const setViewportHeight = () => {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+                updateDisplay();
+            };
+
+            setViewportHeight();
+            
+            window.addEventListener('resize', () => {
+                setTimeout(setViewportHeight, 100);
+            });
+            
+            window.addEventListener('orientationchange', () => {
+                setTimeout(setViewportHeight, 100);
+            });
+        };
+
+        // 更新顯示的數值
+        const updateDisplay = () => {
+            const windowHeight = window.innerHeight;
+            const vhVariable = getComputedStyle(document.documentElement).getPropertyValue('--vh');
+            const heroElement = document.querySelector('.hero-test');
+            const heroHeight = heroElement ? heroElement.offsetHeight : 0;
+
+            document.getElementById('window-height').textContent = windowHeight;
+            document.getElementById('vh-variable').textContent = vhVariable.trim();
+            document.getElementById('hero-height').textContent = heroHeight;
+        };
+
+        // 初始化
+        fixViewportHeight();
+        updateDisplay();
+
+        // 定期更新顯示 (用於調試)
+        setInterval(updateDisplay, 1000);
+    </script>
+</body>
+</html>
