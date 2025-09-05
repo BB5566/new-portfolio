@@ -2078,7 +2078,6 @@ body {
   color: white;
   position: relative;
   overflow: hidden;
-  margin-top: var(--spacing-xl);
 }
 
 .footer-content {
