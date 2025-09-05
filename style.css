@@ -10,11 +10,13 @@
   background-color: var(--color-bg); /* 背景色與網站一致 */
   z-index: 9999;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   opacity: 1;
   visibility: visible;
   transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+  gap: 1rem;
 }
 
 body.loaded #preloader {
@@ -31,16 +33,29 @@ body.loaded #preloader {
   color: var(--color-text);
 }
 
+.preloader-name:nth-child(2) {
+  font-size: 1.2rem;
+  font-weight: 400;
+  opacity: 0.8;
+  margin-top: -0.5rem;
+}
+
 .preloader-name span {
   animation: bounce 1.6s infinite ease-in-out;
 }
 
-/* 錯開動畫效果 */
-.preloader-name span:nth-child(1) { animation-delay: -0.6s; }
-.preloader-name span:nth-child(3) { animation-delay: -0.5s; }
-.preloader-name span:nth-child(4) { animation-delay: -0.4s; }
-.preloader-name span:nth-child(5) { animation-delay: -0.3s; }
-.preloader-name span:nth-child(7) { animation-delay: -0.2s; }
+/* 錯開動畫效果 - 第一行 BOB TSOU */
+.preloader-name:nth-child(1) span:nth-child(1) { animation-delay: -0.6s; }
+.preloader-name:nth-child(1) span:nth-child(2) { animation-delay: -0.55s; }
+.preloader-name:nth-child(1) span:nth-child(3) { animation-delay: -0.5s; }
+.preloader-name:nth-child(1) span:nth-child(4) { animation-delay: -0.45s; }
+.preloader-name:nth-child(1) span:nth-child(5) { animation-delay: -0.4s; }
+.preloader-name:nth-child(1) span:nth-child(6) { animation-delay: -0.35s; }
+.preloader-name:nth-child(1) span:nth-child(7) { animation-delay: -0.3s; }
+.preloader-name:nth-child(1) span:nth-child(8) { animation-delay: -0.25s; }
+
+/* 錯開動畫效果 - 第二行 portfolio */
+.preloader-name:nth-child(2) span { animation-delay: -0.2s; }
 
 .preloader-eye {
   width: 1em;
