@@ -458,6 +458,8 @@ video {
   font-weight: 700;
   font-size: 0.95rem;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  min-width: 140px;
+  justify-content: center;
 }
 
 .cta-secondary {
@@ -1517,9 +1519,9 @@ body {
   }
   
 
-  .hero-content {
+  /* .hero-content {
     padding: var(--spacing-xl) var(--spacing-sm);
-  }
+  } */
   
   .accordion-section {
     padding: var(--spacing-lg) var(--spacing-sm);
