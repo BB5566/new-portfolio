@@ -1,9 +1,3 @@
-/**
- * @file 優化後的Portfolio樣式
- * @author Bob Tsou
- * @version 8.0.0 (Optimized & Clean)
- * @description 重新組織的模組化CSS，統一命名規範並移除冗餘樣式
- */
 
 /* ===============================================
    1. 字體定義
@@ -156,8 +150,7 @@ body {
 
 body.loaded {
   overflow-y: auto !important;
-  height: auto;
-  min-height: 100vh;
+
 }
 
 /* 無游標元素 */
@@ -218,8 +211,8 @@ video {
 }
 
 .cursor-dot-outline {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   background-color: rgba(74, 71, 163, 0.2);
   transform: translate(-50%, -50%);
   backdrop-filter: blur(1px);
@@ -238,14 +231,10 @@ video {
 .portfolio-container {
   background-color: var(--color-primary);
   width: 100%;
-  max-width: 1600px;
-  min-height: 100%;
   margin: 0;
-  box-shadow: var(--shadow-elevated);
   display: flex;
   flex-direction: column;
   visibility: visible;
-  opacity: 1;
 }
 
 /* ===============================================
@@ -263,6 +252,7 @@ video {
   position: relative;
   z-index: 10;
   overflow: hidden;
+  height: 100vh;
 }
 
 /* 添加動態背景漸變效果 */
