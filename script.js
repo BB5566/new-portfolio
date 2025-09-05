@@ -191,44 +191,8 @@ function initializeGsap() {
 }
 
 // ================================================
-// 4. 主題切換功能
 // ================================================
-
-/**
- * 設定主題 - 讀取儲存的主題或使用系統偏好
- */
-function setupTheme() {
-  // 檢查用戶的系統主題偏好
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  
-  // 從本地儲存讀取之前儲存的主題
-  const savedTheme = localStorage.getItem("portfolio-theme");
-
-  if (savedTheme) {
-    elements.body.className = savedTheme;
-  } else if (prefersDark) {
-    elements.body.className = "dark-mode";
-  } else {
-    elements.body.className = "light-mode";
-  }
-}
-
-/**
- * 切換主題 - 在明亮與深色模式間切換
- */
-function toggleTheme() {
-  const newTheme = elements.body.classList.contains("light-mode") 
-    ? "dark-mode" 
-    : "light-mode";
-  
-  elements.body.className = newTheme;
-  localStorage.setItem("portfolio-theme", newTheme);
-  
-  console.log(`主題已切換為: ${newTheme}`);
-}
-
-// ================================================
-// 5. 視窗高度修正 (行動裝置優化)
+// 4. 視窗高度修正 (行動裝置優化)
 // ================================================
 
 /**
@@ -305,9 +269,6 @@ function setupFloatingActions() {
     <button class="floating-btn" id="backToTop" title="回到頂部">
       ↑
     </button>
-    <button class="floating-btn" id="toggleTheme" title="切換主題">
-      🌙
-    </button>
   `;
   document.body.appendChild(floatingActions);
 
@@ -315,15 +276,6 @@ function setupFloatingActions() {
   document.getElementById("backToTop").addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     console.log("用戶點擊回到頂部");
-  });
-
-  // 主題切換按鈕功能
-  document.getElementById("toggleTheme").addEventListener("click", () => {
-    toggleTheme();
-    
-    // 更新按鈕圖示
-    const themeBtn = document.getElementById("toggleTheme");
-    themeBtn.textContent = elements.body.classList.contains("dark-mode") ? "☀️" : "🌙";
   });
 
   // 滾動時顯示/隱藏按鈕
@@ -351,23 +303,41 @@ function setupFloatingActions() {
 function setupEyeTracking() {
   if (isMobile) return; // 手機跳過此效果
 
-  // 使用 GSAP 的 quickTo 提升性能
-  const xTo = gsap.quickTo(elements.eyes, "x", {
-    duration: 0.4,
-    ease: "power2"
-  });
-  const yTo = gsap.quickTo(elements.eyes, "y", {
-    duration: 0.4,
-    ease: "power2"
-  });
-
-  // 滑鼠移動事件
+  // 滑鼠移動事件 - 每個眼睛獨立追蹤
   elements.heroContent.addEventListener("mousemove", (e) => {
     const { clientX, clientY } = e;
     
-    // 計算眼球移動範圍 (-10 到 10 像素)
-    xTo((clientX / window.innerWidth) * 20 - 10);
-    yTo((clientY / window.innerHeight) * 10 - 5);
+    // 為每個眼睛獨立計算追蹤
+    elements.eyes.forEach(eye => {
+      const eyeContainer = eye.parentElement;
+      const rect = eyeContainer.getBoundingClientRect();
+      
+      // 計算眼睛容器的中心點
+      const eyeCenterX = rect.left + rect.width / 2;
+      const eyeCenterY = rect.top + rect.height / 2;
+      
+      // 計算滑鼠相對於眼睛中心的角度
+      const deltaX = clientX - eyeCenterX;
+      const deltaY = clientY - eyeCenterY;
+      const angle = Math.atan2(deltaY, deltaX);
+      
+      // 計算距離並限制眼球移動範圍
+      const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), 150);
+      const maxMovement = 18; // 眼球最大移動距離（像素）- 增加移動幅度
+      const moveDistance = (distance / 150) * maxMovement;
+      
+      // 計算眼球新位置
+      const newX = Math.cos(angle) * moveDistance;
+      const newY = Math.sin(angle) * moveDistance;
+      
+      // 使用 GSAP 動畫移動眼球
+      gsap.to(eye, {
+        x: newX,
+        y: newY,
+        duration: 0.2,
+        ease: "power1.out"
+      });
+    });
   });
 
   // 滑鼠離開事件 - 眼球回到正中央
@@ -1118,11 +1088,6 @@ function setupEventListeners() {
     }
   });
 
-  // 眼睛容器點擊 - 切換主題
-  elements.eyeContainers.forEach(container => {
-    container.addEventListener("click", toggleTheme);
-  });
-
   // 鍵盤快捷鍵
   document.addEventListener("keydown", (e) => {
     switch (e.key) {
@@ -1190,7 +1155,6 @@ async function initializePortfolio() {
 
   try {
     // 1. 基礎設定
-    setupTheme();
     fixViewportHeight();
 
     // 2. 滾動相關功能
